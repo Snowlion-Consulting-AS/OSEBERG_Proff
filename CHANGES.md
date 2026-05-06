@@ -167,7 +167,7 @@ preserved on cache miss. Wrong-tenant data leakage is impossible — the
 cache key does not include `domain`, but the cached *data* is
 non-tenant-specific (it's a company record from a public registry).
 
-### Verification (manual, before deploy)
+### BE-1 verification (manual, before deploy)
 
 1. Build the Function locally: `cd LIVE-ProffCompanyLookup && dotnet build`.
 2. Deploy to a non-LIVE Function App if available (DEV / TEST). If not,
@@ -180,10 +180,55 @@ non-tenant-specific (it's a company record from a public registry).
 4. **Enrichment cache:** call twice with identical
    `?country=NO&organisationNumber=...&domain=...`. Same behavior.
 
+### BE-2 — Persist successful premium fetches to the existing cache
+
+**File:** `LIVE-ProffCompanyLookup/ProffPremiumLookup.cs`
+
+**Problem:** `ProffPremiumLookup.Run` already calls
+`_proffPremiumCacheService.GetPremiumInfoAsync(...)` to check the Azure
+Table cache for credit ratings. On hit it returns the cached result. On
+miss it fetches fresh from Proff Premium — **but never calls
+`CreateOrUpdatePremiumInfoAsync`**, so the cache table was never
+populated and every premium request was effectively uncached. The
+cache check was dead code.
+
+**Fix:** After a successful fresh fetch (`statusCode == OK` and
+`creditRating != null`), call `CreateOrUpdatePremiumInfoAsync(orgNr,
+country, creditRating)` so the next lookup for the same orgnr serves
+from Azure Table.
+
+**Expected impact:** Depends on the relative volume of premium credit-
+rating calls vs. main company lookups. If premium is a meaningful slice
+of the 17k/day, this single addition (with a status/null guard)
+materially reduces Proff Premium round-trips. If premium is a tiny
+slice, this is a hygiene fix that makes a latent bug unlatent.
+
+**Caveats / known limitations (Phase 2 follow-ups):**
+- Azure Table entries have no TTL. Credit ratings change over time, so
+  an indefinite cache will eventually return stale data. A
+  `last_updated` timestamp + age check on read is the proper fix.
+- No invalidation hook — manual cache flush is the only recourse if
+  bad data sneaks in.
+
+**Risk:** Very low. Pure addition guarded by status / null check; the
+response path is unchanged.
+
+**BE-2 verification:**
+1. Build: `cd LIVE-ProffCompanyLookup && dotnet build` (0 errors).
+2. Call the premium endpoint with a fresh orgnr that is **not** in the
+   `ProffPremiumCache` Azure Table. Expect status 200 + a row to appear
+   in the table after the call (partitionKey = country, rowKey =
+   orgnr).
+3. Call the same endpoint again. Expect status 200 + no outbound
+   dependency call to `ppc.proff.no` in App Insights for this request.
+4. Call with an orgnr that returns a non-200 from Proff. Expect no
+   row to be written to the cache table.
+
 ### Files touched
 
 - `LIVE-ProffCompanyLookup/Program.cs`
 - `LIVE-ProffCompanyLookup/ProffCompanyLookup.cs`
+- `LIVE-ProffCompanyLookup/ProffPremiumLookup.cs`
 
 ### Files NOT touched (intentionally, deferred)
 
