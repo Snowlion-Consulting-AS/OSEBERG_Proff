@@ -223,24 +223,14 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     }
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = () => {
+    // Setting selectedItem triggers the [selectedItem] effect which performs
+    // the enrichment fetch and onCardClick. Calling handleSearch here as well
+    // produced a duplicate request against the *previous* selectedItem
+    // (React state updates are async) and wrote stale data back to the form.
     if (cachedItem) setSelectedItem(cachedItem);
     setShowConfirmationDialog(false);
-
-    if (selectedItem) {
-      if (selectedItem.OrganisationNumber) {
-        await handleSearch(
-          "",
-          selectedItem.OrganisationNumber,
-          selectedItem.ProffCompanyId
-        );
-      }
-
-      onCardClick(selectedItem);
-      setResultsVisible(false);
-      setCachedItem(null);
-    }
-
+    setCachedItem(null);
     setSearchValue("");
     setDebouncedSearchValue("");
   };
