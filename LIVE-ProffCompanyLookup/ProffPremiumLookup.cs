@@ -58,6 +58,21 @@ public class ProffPremiumLookup
       var (creditRating, statusCode) = await _proffPremiumApiService.GetCreditScore(inputParams.organisationNumber);
       var proffPremiumActivityService = InitializePremiumActivityService(_proffPremiumRequestActivityTableName);
       await proffPremiumActivityService.UpdateRequestCountAsync(inputParams.organisationNumber);
+
+      // Persist successful fetches so the next lookup for the same orgnr
+      // serves from the Azure Table cache instead of round-tripping to
+      // Proff Premium. Without this write, the read above always
+      // returned null and the cache table never populated — i.e. the
+      // existing cache check was dead code. Only persist on OK +
+      // non-null payload to avoid polluting the cache with errors.
+      if (statusCode == HttpStatusCode.OK && creditRating != null)
+      {
+        await _proffPremiumCacheService.CreateOrUpdatePremiumInfoAsync(
+          inputParams.organisationNumber,
+          inputParams.country,
+          creditRating);
+      }
+
       return await HttpHelper.ConstructHttpResponse(_response, req, statusCode, JObject.FromObject(creditRating));
     }
   }

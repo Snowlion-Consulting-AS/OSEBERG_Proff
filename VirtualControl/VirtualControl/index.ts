@@ -91,6 +91,16 @@ export class VirtualControl
   };
 
   public getOutputs(): IOutputs {
+
+    // Modified to retun 4 if the string representing number of employees is 1-4
+    let numberOfEmployees = this._numberOfEmployees;
+    
+
+    if (numberOfEmployees === "1-4") {
+      numberOfEmployees = "4";
+    }
+    
+
     const outputs: IOutputs = {
       name: this._name,
       companyName: this._name,
@@ -109,7 +119,7 @@ export class VirtualControl
       address2_city: this._vistiorPostPlace,
       address2_country: this._visitorCountry,
       cr41c_orgnr: this._organisationNumber,
-      numberofemployees: this._numberOfEmployees,
+      numberofemployees: numberOfEmployees,
       os_driftsinntekter: this._revenue,
       revenue: this._revenue,
       os_profit: this._profit,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { SearchBox } from "@fluentui/react/lib/SearchBox";
 import { Dropdown, IDropdownOption } from "@fluentui/react";
 import { Dialog, DialogType, DialogFooter } from "@fluentui/react/lib/Dialog";
@@ -49,6 +49,16 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const filteredCountryOptions = countryOptions.filter(
     (option) => option.key !== country
   );
+  // Tracks the in-flight fetch so a new search (or unmount) can cancel the
+  // previous one. Without this, every superseded debounced search still
+  // completed against Proff and was silently discarded — billed but unused.
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   const handleCountryChange = (
     _: React.FormEvent<HTMLDivElement>,
@@ -128,10 +138,15 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     organisationNumber: string = "",
     proffCompanyId: string = ""
   ) => {
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     const domain: string = window.location.hostname;
     try {
       const response = await fetch(
-        `${AZURE_FUNCTION_BASE_URL}?code=${AZURE_FUNCTION_API_KEY}&query=${query}&country=${country}&domain=${domain}&organisationNumber=${organisationNumber}`
+        `${AZURE_FUNCTION_BASE_URL}?code=${AZURE_FUNCTION_API_KEY}&query=${query}&country=${country}&domain=${domain}&organisationNumber=${organisationNumber}`,
+        { signal: controller.signal }
       );
 
       if (response.ok) {
@@ -154,6 +169,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         console.error("Failed to fetch data from Azure Function");
       }
     } catch (error) {
+      // AbortError is expected (we superseded the request); not a real error.
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
       console.error("Error fetching data:", error);
     }
   };
@@ -223,24 +242,14 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     }
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = () => {
+    // Setting selectedItem triggers the [selectedItem] effect which performs
+    // the enrichment fetch and onCardClick. Calling handleSearch here as well
+    // produced a duplicate request against the *previous* selectedItem
+    // (React state updates are async) and wrote stale data back to the form.
     if (cachedItem) setSelectedItem(cachedItem);
     setShowConfirmationDialog(false);
-
-    if (selectedItem) {
-      if (selectedItem.OrganisationNumber) {
-        await handleSearch(
-          "",
-          selectedItem.OrganisationNumber,
-          selectedItem.ProffCompanyId
-        );
-      }
-
-      onCardClick(selectedItem);
-      setResultsVisible(false);
-      setCachedItem(null);
-    }
-
+    setCachedItem(null);
     setSearchValue("");
     setDebouncedSearchValue("");
   };
