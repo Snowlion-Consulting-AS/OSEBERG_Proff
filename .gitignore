@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# Secrets — these must NEVER be committed. Values live only as Azure Function
+# App settings (plain env vars) or Azure Key Vault references at runtime.
+# ---------------------------------------------------------------------------
+local.settings.json
+**/local.settings.json
+appsettings.*.local.json
+appsettings.Development.json
+secrets.json
+*.secrets.json
+.env
+.env.*
+*.pfx
+*.pem
+*.key
+
+# ---------------------------------------------------------------------------
+# .NET build output
+# ---------------------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+*.user
+.vs/
+
+# ---------------------------------------------------------------------------
+# Node / PCF (VirtualControl) build output
+# ---------------------------------------------------------------------------
+node_modules/
+out/
+generated/
+*.log
