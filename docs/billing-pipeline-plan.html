@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>OSEBERG_Proff — Billing Pipeline Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #0e1116;
+    --bg-soft: #161b22;
+    --bg-elev: #1c2230;
+    --bg-elev-2: #232b3b;
+    --border: #2a3242;
+    --border-strong: #3a4456;
+    --text: #e6edf3;
+    --text-muted: #9ba6b7;
+    --text-faint: #6b7587;
+    --accent: #7dd3fc;
+    --accent-deep: #0ea5e9;
+    --good: #4ade80;
+    --info: #60a5fa;
+    --warn: #fbbf24;
+    --high: #fb923c;
+    --crit: #f87171;
+    --t-fast: 150ms;
+    --t-med: 220ms;
+  }
+  :root[data-theme="light"] {
+    --bg: #f8fafc;
+    --bg-soft: #ffffff;
+    --bg-elev: #f1f5f9;
+    --bg-elev-2: #e2e8f0;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-faint: #64748b;
+    --accent: #0284c7;
+    --accent-deep: #0369a1;
+    --good: #16a34a;
+    --info: #2563eb;
+    --warn: #d97706;
+    --high: #ea580c;
+    --crit: #dc2626;
+  }
+  :root[data-theme="light"] code { color: #0369a1; }
+  :root[data-theme="light"] .callout.crit { background: rgba(220,38,38,0.04); border-color: rgba(220,38,38,0.3); }
+  :root[data-theme="light"] .callout.warn { background: rgba(217,119,6,0.04); border-color: rgba(217,119,6,0.3); }
+  :root[data-theme="light"] .callout.good { background: rgba(22,163,74,0.04); border-color: rgba(22,163,74,0.3); }
+  :root[data-theme="light"] .badge-must { background: rgba(220,38,38,0.08); color: #b91c1c; border-color: rgba(220,38,38,0.3); }
+  :root[data-theme="light"] .badge-should { background: rgba(217,119,6,0.08); color: #b45309; border-color: rgba(217,119,6,0.3); }
+  :root[data-theme="light"] .badge-could { background: rgba(37,99,235,0.08); color: #1d4ed8; border-color: rgba(37,99,235,0.3); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, system-ui, sans-serif; font-size: 15px; line-height: 1.55; }
+  a { color: var(--accent); text-decoration: none; transition: color var(--t-fast); }
+  a:hover { color: var(--accent-deep); }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+  code, pre, .mono { font-family: 'JetBrains Mono', ui-monospace, SF Mono, Menlo, monospace; }
+  code { background: var(--bg-elev); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-size: 0.85em; color: var(--accent); }
+  pre { background: var(--bg-elev); border: 1px solid var(--border); padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+  pre code { background: none; border: none; padding: 0; color: var(--text); font-size: inherit; }
+  h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  h1 { font-size: 2.4rem; }
+  h2 { font-size: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+  h3 { font-size: 1.1rem; margin-top: 1.5rem; }
+  p { margin: 0.6rem 0; color: var(--text); }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: 0.3rem 0; }
+
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  nav.sidebar { background: var(--bg-soft); border-right: 1px solid var(--border); padding: 28px 22px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  nav .brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+  nav .brand-sub { font-size: 0.78rem; color: var(--text-faint); margin-bottom: 2rem; }
+  nav ul { list-style: none; padding: 0; margin: 0; }
+  nav a { display: block; padding: 7px 10px; margin: 1px -10px; border-radius: 6px; color: var(--text-muted); font-size: 0.86rem; transition: background var(--t-fast), color var(--t-fast); }
+  nav a:hover { background: var(--bg-elev); color: var(--text); }
+  nav .nav-section { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); margin: 1.5rem 0 0.5rem; font-weight: 600; }
+  nav .related { padding: 10px 12px; margin: 16px -10px 0; border: 1px solid var(--border); border-radius: 8px; font-size: 0.78rem; color: var(--text-faint); line-height: 1.5; }
+  nav .related strong { display: block; color: var(--text-muted); margin-bottom: 4px; }
+  nav .related a { display: inline; padding: 0; margin: 0; }
+
+  .theme-toggle {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%;
+    background: var(--bg-elev); border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 12px; margin-bottom: 20px; border-radius: 8px;
+    cursor: pointer; font-family: inherit; font-size: 0.82rem; font-weight: 500;
+    transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  }
+  .theme-toggle:hover { background: var(--bg-elev-2); color: var(--text); border-color: var(--border-strong); }
+  .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .theme-toggle svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .theme-toggle .icon-sun { display: block; }
+  .theme-toggle .icon-moon { display: none; }
+  :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+  :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+  .theme-toggle .theme-label { flex: 1; text-align: left; }
+
+  main { padding: 56px 64px 120px; max-width: 1180px; }
+  header.hero { margin-bottom: 2.5rem; }
+  .hero .eyebrow { color: var(--text-faint); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; font-weight: 500; }
+  .hero h1 { margin-bottom: 1rem; }
+  .hero .sub { font-size: 1.05rem; color: var(--text-muted); max-width: 760px; }
+  .meta-row { display: flex; gap: 24px; margin-top: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-faint); }
+  .meta-row strong { display: block; color: var(--text); font-weight: 500; margin-top: 2px; font-size: 0.95rem; }
+
+  /* Callouts */
+  .callout { border-left: 3px solid var(--accent); background: var(--bg-soft); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 1rem 0; font-size: 0.92rem; }
+  .callout.warn { border-color: var(--warn); }
+  .callout.crit { border-color: var(--crit); }
+  .callout.good { border-color: var(--good); }
+  .callout .head { font-weight: 600; margin-bottom: 0.3rem; }
+  .callout.crit .head { color: var(--crit); }
+  .callout.warn .head { color: var(--warn); }
+  .callout.good .head { color: var(--good); }
+
+  /* Questions block */
+  .questions { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 22px 24px; margin: 1.5rem 0 2rem; }
+  .questions h3 { margin-top: 0; }
+  .q { display: grid; grid-template-columns: 60px 1fr; gap: 14px; padding: 12px 0; border-top: 1px solid var(--border); }
+  .q:first-of-type { border-top: 1px solid var(--border); }
+  .q .qid { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-faint); padding-top: 3px; }
+  .q .qtext { font-size: 0.92rem; color: var(--text); }
+  .q .qhint { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+  .q .badge { float: right; margin-left: 8px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid; }
+  .badge-must { background: rgba(248,113,113,0.12); color: var(--crit); border-color: rgba(248,113,113,0.4); }
+  .badge-should { background: rgba(251,191,36,0.12); color: var(--warn); border-color: rgba(251,191,36,0.4); }
+  .badge-could { background: rgba(96,165,250,0.12); color: var(--info); border-color: rgba(96,165,250,0.4); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.88rem; vertical-align: top; }
+  th { background: var(--bg-elev); color: var(--text-muted); font-weight: 500; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; }
+  tr:last-child td { border-bottom: none; }
+  td.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+
+  /* Diagram */
+  .diagram { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 1rem 0; overflow-x: auto; }
+  .mermaid { display: flex; justify-content: center; }
+
+  /* Principles cards */
+  .principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 1rem 0; }
+  .principle { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .principle .ptitle { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+  .principle .pbody { font-size: 0.85rem; color: var(--text-muted); }
+
+  /* Step list */
+  .seq { display: grid; gap: 12px; margin: 1rem 0; }
+  .seq-item { display: grid; grid-template-columns: 44px 1fr auto; gap: 16px; padding: 14px 18px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; align-items: start; }
+  .seq-item .n { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--bg-elev); color: var(--accent); font-weight: 600; font-size: 0.95rem; border: 1px solid var(--border-strong); }
+  .seq-item .body strong { display: block; margin-bottom: 4px; }
+  .seq-item .body { font-size: 0.9rem; color: var(--text); }
+  .seq-item .body small { color: var(--text-muted); display: block; margin-top: 4px; }
+  .seq-item .effort { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-faint); white-space: nowrap; padding-top: 5px; }
+
+  hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .footnote { font-size: 0.8rem; color: var(--text-faint); margin-top: 0.5rem; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.sidebar { position: relative; height: auto; }
+    main { padding: 32px 24px 80px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar" aria-label="Section navigation">
+    <div class="brand">OSEBERG_Proff</div>
+    <div class="brand-sub">Billing pipeline plan · May 2026</div>
+
+    <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to light theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span class="theme-label">Light mode</span>
+    </button>
+
+    <div class="nav-section">On this page</div>
+    <ul>
+      <li><a href="#questions">Open questions</a></li>
+      <li><a href="#today">What we have today</a></li>
+      <li><a href="#target">Target architecture</a></li>
+      <li><a href="#principles">Design principles</a></li>
+      <li><a href="#schema">Data model</a></li>
+      <li><a href="#pricing">Pricing model</a></li>
+      <li><a href="#migration">Migration phases</a></li>
+      <li><a href="#open-decisions">Things to decide later</a></li>
+    </ul>
+
+    <div class="related">
+      <strong>Related docs</strong>
+      <a href="codebase-overview.html">codebase-overview.html</a> — current-state audit<br>
+      <a href="improvement-roadmap.html">improvement-roadmap.html</a> — broader backlog (RM-ARCH-2, RM-DATA-2 are billing-adjacent)
+    </div>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Snowlion Consulting · Forward design</div>
+      <h1>Billing pipeline plan</h1>
+      <p class="sub">A small plan for turning Oseberg_Proff's usage counters into a durable, auditable billing pipeline that's flexible to future pricing changes. Not a commitment to build — a design document to anchor the conversation with Oseberg.</p>
+      <div class="meta-row">
+        <div>Scope<strong>Small — replaces the two activity tables, not the rest</strong></div>
+        <div>Status<strong>Plan only · awaiting input on the open questions</strong></div>
+        <div>Generated<strong>2026-05-22</strong></div>
+      </div>
+    </header>
+
+    <!-- OPEN QUESTIONS -->
+    <section id="questions">
+    <h2>Open questions (block on these)</h2>
+    <p>Confirming these with Oseberg before any code change. They determine the data model and pricing engine. The first one is the most urgent — it may invalidate invoices already issued.</p>
+
+    <div class="questions">
+      <div class="q">
+        <div class="qid">Q-1</div>
+        <div>
+          <div class="qtext"><span class="badge badge-must">Must</span> Is the premium <code>{orgnr}_{yyyyMM}</code> row-key intentional, or a bug?</div>
+          <div class="qhint">The current basic-activity table keys by <code>{domain}_{yyyyMM}</code>. The premium-activity table keys by <code>{orgnr}_{yyyyMM}</code> — meaning rows are not directly scoped to a tenant. If the contract bills the tenant per Proff Premium call, the count is wrong (mixed across tenants). If the contract bills per-orgnr-lookup (e.g., "you bought tracking for 50 companies"), the key makes sense — but the <em>tenant</em> who looked it up isn't on the row.</div>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qid">Q-2</div>
+        <div>
+          <div class="qtext"><span class="badge badge-must">Must</span> Is there an allowlist of orgnumbers per tenant, and if so where does it live?</div>
+          <div class="qhint">Stephan's recollection: tenants have a set of orgnumbers they're allowed to look up. <code>ProffConfiguration</code> only holds <code>active_subscription</code> + <code>premium_subscription</code> bool flags — no allowlist visible. Either the allowlist exists in a table the audit missed, or enforcement is not implemented and any premium-licensed tenant can look up anything.</div>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qid">Q-3</div>
+        <div>
+          <div class="qtext"><span class="badge badge-must">Must</span> What's the exact pricing structure per SKU?</div>
+          <div class="qhint">Stephan's current understanding: billed on all calls; premium calls cost more than basic. Need the actual NOK/call rates per SKU, whether there are tiered volume discounts, included call quotas, overage rates. Pricing changes occasionally — the pipeline should support retroactive rate changes (e.g., backfilling a month at a new rate) and forward-dated rates (e.g., "from June 1 the basic rate goes up").</div>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qid">Q-4</div>
+        <div>
+          <div class="qtext"><span class="badge badge-should">Should</span> Cache hits — billable or not?</div>
+          <div class="qhint">Current code increments the counter on cache hits (per CHANGES.md BE-1 — "tracks tenant lookup activity for billing, not raw Proff calls"). Confirm this matches what customer contracts say. Two reasonable models: (a) bill on lookups the tenant made (current), (b) bill on raw Proff calls (gives them an incentive to optimise; reduces Oseberg's gross margin).</div>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qid">Q-5</div>
+        <div>
+          <div class="qtext"><span class="badge badge-should">Should</span> How is the invoice currently produced?</div>
+          <div class="qhint">Manual KQL or table query at month-end? An Excel template? A Power BI report bound to the table? This determines the migration path — if there's no automation today, this plan can replace it; if there is automation, we need a compatibility shim during transition.</div>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qid">Q-6</div>
+        <div>
+          <div class="qtext"><span class="badge badge-could">Could</span> Per-tenant monthly quotas and overage handling?</div>
+          <div class="qhint">Are there hard quotas ("after N calls/month you're cut off") or soft overage charges ("call N+1 onwards is at overage rate")? Currently neither is implemented — only a <code>active_subscription</code> boolean check. Worth deciding now so the data model carries the necessary fields, even if enforcement is deferred.</div>
+        </div>
+      </div>
+      <div class="q">
+        <div class="qid">Q-7</div>
+        <div>
+          <div class="qtext"><span class="badge badge-could">Could</span> Retention requirements for billable events?</div>
+          <div class="qhint">Tax/accounting in Norway typically requires 5 years of supporting documentation. The event log should be retained at least that long; Azure Tables are cheap enough that this is essentially free. Confirm with Oseberg's accountant.</div>
+        </div>
+      </div>
+    </div>
+
+    </section>
+
+    <!-- WHAT WE HAVE TODAY -->
+    <section id="today">
+    <h2>What we have today</h2>
+    <p>Two Azure Tables in <code>proffwebstorage</code> track per-tenant request counts:</p>
+    <table>
+      <thead><tr><th>Table</th><th>Row key</th><th>Updated when</th><th>Issue for billing</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">ProffRequestActivity</td><td class="mono">{domain}_{yyyyMM}</td><td>Every <code>ProffCompanyLookup</code> call, incl. cache hits</td><td>Not idempotent; no per-request audit trail</td></tr>
+        <tr><td class="mono">ProffPremiumRequestActivity</td><td class="mono">{orgnr}_{yyyyMM}</td><td>Every <code>ProffPremiumLookup</code> call</td><td>⚠ Key doesn't include tenant — see Q-1</td></tr>
+      </tbody>
+    </table>
+    <p>Both writes happen in the request hot path. Failure modes (connection drop after counter increment, retry without idempotency, table throttle) cause counts to drift from reality over time. There's no replayable event log — you cannot rebuild the counters from an immutable source if anything goes wrong.</p>
+    </section>
+
+    <!-- TARGET ARCHITECTURE -->
+    <section id="target">
+    <h2>Target architecture</h2>
+    <p>Three separations: <strong>capture</strong>, <strong>store</strong>, <strong>aggregate</strong>. Pricing is a fourth concern that operates against the stored events, not the live function.</p>
+    <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+    subgraph FN["Azure Function (lean — hot path)"]
+      T["HTTP trigger"]
+      T -. "fire-and-forget" .-> Q[("Storage Queue<br/>billable-events")]
+    end
+
+    subgraph CAP["Capture pipeline"]
+      Q --> D["QueueTrigger drain"]
+      D --> EL[("Azure Table<br/>BillableEvents<br/>append-only<br/>RowKey = requestId")]
+    end
+
+    subgraph AGG["Aggregator (timer-triggered, monthly)"]
+      A["Aggregator function<br/>reads events × pricing"]
+      EL --> A
+      P[("Azure Table<br/>PricingHistory<br/>SKU + validFrom/validTo")] --> A
+      A --> INV[("Azure Table<br/>InvoiceLines<br/>tenant + month + SKU + amount")]
+    end
+
+    subgraph OUT["Outputs"]
+      INV --> EXP["CSV / Power BI<br/>for Oseberg finance"]
+      INV --> AI[("App Insights metric<br/>billing.monthly.amount{tenant,sku}")]
+    end
+
+    classDef store fill:#1c2230,stroke:#3a4456,color:#9ba6b7
+    class Q,EL,P,INV,AI store
+    </pre>
+    </div>
+    <p class="footnote">The hot path emits one queue message per request and returns. Everything downstream is async and replayable. Pricing is applied at <em>aggregation time</em>, not capture time — so rate changes can be applied retroactively by re-running the aggregator over the event log.</p>
+    </section>
+
+    <!-- DESIGN PRINCIPLES -->
+    <section id="principles">
+    <h2>Design principles</h2>
+    <div class="principles">
+      <div class="principle">
+        <div class="ptitle">Append-only event log</div>
+        <div class="pbody">Captured events are never updated or deleted. Aggregation reads them in bulk; corrections are emitted as new compensating events with a reason code, not mutations.</div>
+      </div>
+      <div class="principle">
+        <div class="ptitle">Idempotent capture</div>
+        <div class="pbody">Every event carries a <code>requestId</code> (GUID from the function invocation). Row key in <code>BillableEvents</code> is <code>{yyyyMM}_{requestId}</code> — duplicate enqueue + drain is a no-op upsert.</div>
+      </div>
+      <div class="principle">
+        <div class="ptitle">Pricing is data, not code</div>
+        <div class="pbody"><code>PricingHistory</code> is a versioned table with <code>validFrom</code> / <code>validTo</code> per SKU. Aggregator joins events against pricing valid at the event's timestamp. Rate changes are inserts, not edits.</div>
+      </div>
+      <div class="principle">
+        <div class="ptitle">Off the hot path</div>
+        <div class="pbody">Hot-path cost is one queue message — sub-10ms, fire-and-forget. A function instance crashing after the queue enqueue but before responding is the only failure mode; everything else replays from the queue.</div>
+      </div>
+      <div class="principle">
+        <div class="ptitle">Aggregation is pure</div>
+        <div class="pbody">Given the event log + pricing table at a point in time, the invoice is deterministic. Re-running the aggregator over the same inputs always produces the same outputs — easy to audit, easy to dry-run.</div>
+      </div>
+      <div class="principle">
+        <div class="ptitle">Multi-SKU from day one</div>
+        <div class="pbody">Event schema carries <code>sku</code> as a free-form string (<code>basic</code>, <code>premium</code>, future <code>premium-credit</code>, <code>nordic-extension</code>, etc.). New SKUs require only a row in <code>PricingHistory</code>, no code change.</div>
+      </div>
+    </div>
+    </section>
+
+    <!-- DATA MODEL -->
+    <section id="schema">
+    <h2>Data model</h2>
+
+    <h3>Event schema (<code>BillableEvents</code>)</h3>
+    <pre><code>PartitionKey: {tenant}                  // domain string, e.g. "suran.crm4.dynamics.com"
+RowKey:       {yyyyMM}_{requestId}      // sortable by month, unique per call
+
+// Body fields
+requestId           : string (GUID)     // same as suffix in RowKey, for joining
+timestamp           : DateTimeOffset    // UTC, when the request was served
+endpoint            : string            // "ProffCompanyLookup" | "ProffPremiumLookup"
+queryType           : string            // "search" | "enrich" | "premium-credit"
+organisationNumber  : string?           // when applicable
+sku                 : string            // "basic" | "premium" — billable category
+cacheStatus         : string            // "hit" | "miss" | "stale" — informational
+upstreamCalled      : bool              // did we actually hit Proff? — informational
+responseStatus      : int               // HTTP status returned to caller
+billable            : bool              // false on early-failure (no-license denials etc.)
+notes               : string?           // free-form, e.g. "denied — no premium license"</code></pre>
+
+    <h3>Pricing schema (<code>PricingHistory</code>)</h3>
+    <pre><code>PartitionKey: {sku}                     // "basic", "premium", etc.
+RowKey:       {yyyyMMddTHHmmss}_validFrom  // inverse-sortable
+
+// Body fields
+sku             : string
+validFrom       : DateTimeOffset
+validTo         : DateTimeOffset?       // null = currently active
+ratePerCall     : decimal               // NOK
+currency        : string                // "NOK"
+includedQuota   : int?                  // calls included per month at this rate (null = unlimited)
+overageRate     : decimal?              // NOK per call beyond quota
+notes           : string?               // reason for change, ticket ref, etc.</code></pre>
+
+    <h3>Invoice line schema (<code>InvoiceLines</code>)</h3>
+    <pre><code>PartitionKey: {tenant}
+RowKey:       {yyyyMM}_{sku}
+
+// Body fields
+tenant          : string
+month           : string                // "2026-05"
+sku             : string
+calls           : long                  // total billable calls in month for this SKU
+includedQuota   : int?
+overageCalls    : long                  // max(0, calls - includedQuota)
+baseAmount      : decimal               // (calls within quota) × ratePerCall
+overageAmount   : decimal               // overageCalls × overageRate
+totalAmount     : decimal
+currency        : string
+generatedAt     : DateTimeOffset        // when the aggregator ran
+sourceVersion   : string                // git SHA of the aggregator that ran</code></pre>
+
+    <div class="callout">
+      <div class="head">Why these shapes</div>
+      <p><strong>PartitionKey by tenant</strong> on <code>BillableEvents</code> means per-tenant aggregation is a single partition scan — fast and cheap. <strong>RowKey starts with month</strong> so the aggregator can fetch one month for one tenant as a contiguous range query. <code>InvoiceLines</code> is denormalised on purpose: each row is a finished, attributable bill line; you can recompute by re-running the aggregator, but the row itself is the canonical answer.</p>
+    </div>
+
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing">
+    <h2>Pricing model — flexibility cases</h2>
+    <p>Concrete scenarios the schema supports without code changes:</p>
+    <table>
+      <thead><tr><th>Scenario</th><th>How it's handled</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Price increase on June 1, 2026</td>
+          <td>New row in <code>PricingHistory</code>: <code>sku=basic, validFrom=2026-06-01, ratePerCall=0.60</code>. Set <code>validTo</code> on the previous row. Events in May continue to use the old rate; June onwards uses the new rate.</td>
+        </tr>
+        <tr>
+          <td>Retroactive rate correction (e.g., "the May rate was wrong, here's the correct one")</td>
+          <td>Edit the historical row (or insert a corrected one and mark the old as superseded). Re-run the aggregator for May; <code>InvoiceLines</code> rows get a new <code>generatedAt</code>. Old PDF invoices stand; recompute is auditable.</td>
+        </tr>
+        <tr>
+          <td>Per-tenant negotiated rate</td>
+          <td>Add an optional <code>tenant</code> field on <code>PricingHistory</code> (null = applies to all). Aggregator prefers tenant-specific rate when present.</td>
+        </tr>
+        <tr>
+          <td>New SKU (e.g., "premium-credit-watch")</td>
+          <td>Insert a row in <code>PricingHistory</code> for the new SKU. Update the function to emit events with that <code>sku</code> value. No aggregator change.</td>
+        </tr>
+        <tr>
+          <td>Volume tier (first 1000 calls free, next 9000 @ 0.50 NOK, rest @ 0.30 NOK)</td>
+          <td>Slightly more complex — extend <code>PricingHistory</code> with a <code>tiers</code> field (JSON array of <code>{ fromCall, ratePerCall }</code>) and teach the aggregator to walk the tiers. Add when needed, not on day one.</td>
+        </tr>
+        <tr>
+          <td>Cache-hit-billable toggle changed mid-month</td>
+          <td>Aggregator filters on <code>billable=true</code>. Toggle the convention in the function and re-run aggregator. Hot path event still captured even for non-billable cases — useful for audit even if not invoiced.</td>
+        </tr>
+      </tbody>
+    </table>
+    </section>
+
+    <!-- MIGRATION -->
+    <section id="migration">
+    <h2>Phased migration</h2>
+    <p>Six phases. Phase 1–2 are zero-risk additions; phase 3 onwards is when the live billing data shifts. Each phase ships independently.</p>
+
+    <div class="seq">
+      <div class="seq-item">
+        <div class="n">1</div>
+        <div class="body">
+          <strong>Confirm Q-1 through Q-5</strong>
+          <small>Block on these. The premium-key issue (Q-1) might require backfilling or compensating invoices already issued — handle that before any architectural work.</small>
+        </div>
+        <div class="effort">prereq</div>
+      </div>
+      <div class="seq-item">
+        <div class="n">2</div>
+        <div class="body">
+          <strong>Stand up the queue, drain, and event-log tables in <code>osb-test</code></strong>
+          <small>Create Storage Queue, <code>BillableEvents</code> table, drain function. No production traffic yet. Idempotency test via deliberate duplicate enqueues.</small>
+        </div>
+        <div class="effort">S · 1 day</div>
+      </div>
+      <div class="seq-item">
+        <div class="n">3</div>
+        <div class="body">
+          <strong>Add event emission to the function — shadow mode</strong>
+          <small>Triggers enqueue billable events on every request, but the existing <code>ProffRequestActivity</code> / <code>ProffPremiumRequestActivity</code> writes continue unchanged. Run for 2–4 weeks; compare aggregator output against the legacy counters; reconcile differences. Lands as a feature flag.</small>
+        </div>
+        <div class="effort">M · ~3 days</div>
+      </div>
+      <div class="seq-item">
+        <div class="n">4</div>
+        <div class="body">
+          <strong>Build the aggregator + pricing tables</strong>
+          <small>TimerTrigger function reads <code>BillableEvents</code> for the previous calendar month, joins against <code>PricingHistory</code>, writes <code>InvoiceLines</code>. Idempotent — re-running over the same month produces the same output. Add a dry-run mode that writes to a separate table for review before going live.</small>
+        </div>
+        <div class="effort">M · ~3 days</div>
+      </div>
+      <div class="seq-item">
+        <div class="n">5</div>
+        <div class="body">
+          <strong>Switch invoicing to read from <code>InvoiceLines</code></strong>
+          <small>Whatever consumes the current activity tables (Q-5 answer) gets pointed at the new table. Old tables continue writing in parallel for one cycle as a safety net.</small>
+        </div>
+        <div class="effort">S–M · depends on Q-5</div>
+      </div>
+      <div class="seq-item">
+        <div class="n">6</div>
+        <div class="body">
+          <strong>Decommission old activity tables</strong>
+          <small>Remove the in-line counter writes from the function. Mark the two old tables read-only for 1 month; then drop them. <code>BillableEvents</code> is now the only source of billing truth.</small>
+        </div>
+        <div class="effort">S · half a day</div>
+      </div>
+    </div>
+
+    <p class="footnote">Total effort: ~7–10 days of focused work after Q-1–5 are answered. Best done as a separate workstream from the .NET 10 upgrade; ship it on whichever function app survives the cutover.</p>
+    </section>
+
+    <!-- OPEN DECISIONS -->
+    <section id="open-decisions">
+    <h2>Things to decide later (parking lot)</h2>
+    <p>These don't block the plan but should be revisited once it's live:</p>
+    <ul>
+      <li><strong>Customer-facing usage dashboard</strong> — see <a href="improvement-roadmap.html#area-obs">RM-OBS-2</a>. The <code>InvoiceLines</code> table makes this trivial. Each customer gets a read-only view of their own rows.</li>
+      <li><strong>Quota enforcement</strong> (Q-6) — once the data model carries <code>includedQuota</code> and <code>overageRate</code>, enforcing a hard cutoff is a small read against the current month's <code>InvoiceLines</code> before the function returns.</li>
+      <li><strong>Webhook / Stripe integration</strong> — if Oseberg ever wants automatic invoice generation, the <code>InvoiceLines</code> table is the natural integration point. Each finalised row could trigger an outbound webhook.</li>
+      <li><strong>Allowlist-of-orgnumbers enforcement</strong> (Q-2) — if confirmed as a contract term, add a check between license validation and the cache lookup. Reject with a billable=false event for audit trail.</li>
+      <li><strong>Multi-currency</strong> — schema already carries <code>currency</code>, but the aggregator doesn't yet handle conversion. Defer until there's a customer that needs it.</li>
+      <li><strong>Backfilling old months</strong> — once the aggregator works, an opt-in script could re-derive historical invoices from the legacy <code>ProffRequestActivity</code> data and write them to <code>InvoiceLines</code>. Useful for trend analysis. Acknowledges that old data has the premium-keying bug from Q-1 — flag those rows as <em>reconstructed</em>, not <em>captured</em>.</li>
+    </ul>
+    </section>
+
+    <hr />
+    <p class="footnote">Generated 2026-05-22 as a focused follow-up to the codebase audit. Single-file HTML, no build step. Path: <code>OSEBERG_Proff/docs/billing-pipeline-plan.html</code>.</p>
+  </main>
+</div>
+
+<script>
+  const MERMAID_THEMES = {
+    dark: {
+      background: '#161b22', primaryColor: '#1c2230', primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#3a4456', lineColor: '#7dd3fc', secondaryColor: '#1c2230',
+      tertiaryColor: '#0e1116', mainBkg: '#1c2230', textColor: '#e6edf3'
+    },
+    light: {
+      background: '#ffffff', primaryColor: '#f1f5f9', primaryTextColor: '#0f172a',
+      primaryBorderColor: '#cbd5e1', lineColor: '#0284c7', secondaryColor: '#f1f5f9',
+      tertiaryColor: '#f8fafc', mainBkg: '#ffffff', textColor: '#0f172a'
+    }
+  };
+
+  function initMermaid(theme) {
+    mermaid.initialize({
+      startOnLoad: false, theme: 'base', fontFamily: 'Inter, sans-serif',
+      themeVariables: MERMAID_THEMES[theme]
+    });
+  }
+  function renderMermaid() {
+    document.querySelectorAll('.mermaid').forEach(el => {
+      if (!el.dataset.original) el.dataset.original = el.textContent.trim();
+      else { el.innerHTML = el.dataset.original; }
+      el.removeAttribute('data-processed');
+    });
+    mermaid.run({ querySelector: '.mermaid' });
+  }
+
+  (function themeController() {
+    const root = document.documentElement;
+    const toggle = document.getElementById('theme-toggle');
+    const label = toggle?.querySelector('.theme-label');
+    const STORAGE_KEY = 'oseberg-docs-theme';
+
+    function getInitial() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored === 'light' || stored === 'dark') return stored;
+      } catch (e) {}
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+
+    function apply(theme, { rerender = true } = {}) {
+      if (theme === 'light') root.setAttribute('data-theme', 'light');
+      else root.removeAttribute('data-theme');
+      if (label) label.textContent = theme === 'light' ? 'Dark mode' : 'Light mode';
+      if (toggle) toggle.setAttribute('aria-label', `Switch to ${theme === 'light' ? 'dark' : 'light'} theme`);
+      initMermaid(theme);
+      if (rerender) renderMermaid();
+    }
+
+    let current = getInitial();
+    apply(current, { rerender: false });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderMermaid, { once: true });
+    } else {
+      renderMermaid();
+    }
+
+    toggle?.addEventListener('click', () => {
+      current = current === 'light' ? 'dark' : 'light';
+      try { localStorage.setItem(STORAGE_KEY, current); } catch (e) {}
+      apply(current);
+    });
+
+    try {
+      const mq = window.matchMedia('(prefers-color-scheme: light)');
+      mq.addEventListener?.('change', (e) => {
+        if (localStorage.getItem(STORAGE_KEY)) return;
+        current = e.matches ? 'light' : 'dark';
+        apply(current);
+      });
+    } catch (e) {}
+  })();
+</script>
+</body>
+</html>

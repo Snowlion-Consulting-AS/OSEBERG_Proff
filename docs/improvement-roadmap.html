@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>OSEBERG_Proff — Improvement Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #0e1116;
+    --bg-soft: #161b22;
+    --bg-elev: #1c2230;
+    --bg-elev-2: #232b3b;
+    --border: #2a3242;
+    --border-strong: #3a4456;
+    --text: #e6edf3;
+    --text-muted: #9ba6b7;
+    --text-faint: #6b7587;
+    --accent: #7dd3fc;
+    --accent-deep: #0ea5e9;
+    --good: #4ade80;
+    --info: #60a5fa;
+    --warn: #fbbf24;
+    --high: #fb923c;
+    --crit: #f87171;
+    --cache: #a78bfa;
+    --obs: #34d399;
+    --arch: #38bdf8;
+    --fe: #f472b6;
+    --ops: #fcd34d;
+    --data: #fb923c;
+    --qual: #c084fc;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.35);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --t-fast: 150ms;
+    --t-med: 220ms;
+  }
+  /* Light theme overrides — applied when html[data-theme="light"] */
+  :root[data-theme="light"] {
+    --bg: #f8fafc;
+    --bg-soft: #ffffff;
+    --bg-elev: #f1f5f9;
+    --bg-elev-2: #e2e8f0;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-faint: #64748b;
+    --accent: #0284c7;
+    --accent-deep: #0369a1;
+    --good: #16a34a;
+    --info: #2563eb;
+    --warn: #d97706;
+    --high: #ea580c;
+    --crit: #dc2626;
+    --cache: #7c3aed;
+    --obs: #059669;
+    --arch: #0284c7;
+    --fe: #db2777;
+    --ops: #b45309;
+    --data: #ea580c;
+    --qual: #9333ea;
+    --shadow-sm: 0 1px 3px rgba(15,23,42,0.06);
+    --shadow-md: 0 4px 12px rgba(15,23,42,0.08);
+    --shadow-lg: 0 12px 32px rgba(15,23,42,0.10);
+  }
+  /* Chip overrides for light theme — rgba backgrounds need lighter, text darker for contrast */
+  :root[data-theme="light"] .chip-S    { background: rgba(22,163,74,0.08);  color: #15803d; border-color: rgba(22,163,74,0.3); }
+  :root[data-theme="light"] .chip-M    { background: rgba(217,119,6,0.08);  color: #b45309; border-color: rgba(217,119,6,0.3); }
+  :root[data-theme="light"] .chip-L    { background: rgba(234,88,12,0.08);  color: #c2410c; border-color: rgba(234,88,12,0.3); }
+  :root[data-theme="light"] .chip-cache{ background: rgba(124,58,237,0.08); color: #6d28d9; border-color: rgba(124,58,237,0.3); }
+  :root[data-theme="light"] .chip-obs  { background: rgba(5,150,105,0.08);  color: #047857; border-color: rgba(5,150,105,0.3); }
+  :root[data-theme="light"] .chip-arch { background: rgba(2,132,199,0.08);  color: #0369a1; border-color: rgba(2,132,199,0.3); }
+  :root[data-theme="light"] .chip-fe   { background: rgba(219,39,119,0.08); color: #be185d; border-color: rgba(219,39,119,0.3); }
+  :root[data-theme="light"] .chip-ops  { background: rgba(180,83,9,0.08);   color: #a16207; border-color: rgba(180,83,9,0.3); }
+  :root[data-theme="light"] .chip-data { background: rgba(234,88,12,0.08);  color: #c2410c; border-color: rgba(234,88,12,0.3); }
+  :root[data-theme="light"] .chip-qual { background: rgba(147,51,234,0.08); color: #7e22ce; border-color: rgba(147,51,234,0.3); }
+  /* Bento tile soft backgrounds — also pinned to dark hexes by default */
+  :root[data-theme="light"] .tile-cache { --tile-accent-soft: rgba(124,58,237,0.1); }
+  :root[data-theme="light"] .tile-obs   { --tile-accent-soft: rgba(5,150,105,0.1); }
+  :root[data-theme="light"] .tile-arch  { --tile-accent-soft: rgba(2,132,199,0.1); }
+  :root[data-theme="light"] .tile-fe    { --tile-accent-soft: rgba(219,39,119,0.1); }
+  :root[data-theme="light"] .tile-ops   { --tile-accent-soft: rgba(180,83,9,0.1); }
+  :root[data-theme="light"] .tile-data  { --tile-accent-soft: rgba(234,88,12,0.1); }
+  :root[data-theme="light"] .tile-qual  { --tile-accent-soft: rgba(147,51,234,0.1); }
+  :root[data-theme="light"] code { color: #0369a1; }
+  :root[data-theme="light"] .investigation { background: rgba(217,119,6,0.06); border-color: rgba(217,119,6,0.3); color: #b45309; }
+  :root[data-theme="light"] .investigation strong { color: #b45309; }
+  /* Sticky filter backdrop — semi-transparent so blur reads on light bg too */
+  :root[data-theme="light"] .filter-bar { background: rgba(255,255,255,0.85); }
+
+  /* Theme toggle button — sidebar control */
+  .theme-toggle {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  }
+  .theme-toggle:hover { background: var(--bg-elev-2); color: var(--text); border-color: var(--border-strong); }
+  .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .theme-toggle svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .theme-toggle .icon-sun { display: block; }
+  .theme-toggle .icon-moon { display: none; }
+  :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+  :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+  .theme-toggle .theme-label { flex: 1; text-align: left; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, system-ui, sans-serif; font-size: 15px; line-height: 1.55; }
+  a { color: var(--accent); text-decoration: none; transition: color var(--t-fast); }
+  a:hover { color: var(--accent-deep); }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+  code, pre, .mono { font-family: 'JetBrains Mono', ui-monospace, SF Mono, Menlo, monospace; }
+  code { background: var(--bg-elev); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-size: 0.85em; color: var(--accent); }
+  pre { background: var(--bg-elev); border: 1px solid var(--border); padding: 14px 16px; border-radius: var(--radius-sm); overflow-x: auto; font-size: 13px; line-height: 1.5; }
+  pre code { background: none; border: none; padding: 0; color: var(--text); font-size: inherit; }
+  h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  h1 { font-size: 2.4rem; }
+  h2 { font-size: 1.7rem; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: 3.5rem; }
+  h3 { font-size: 1.2rem; margin-top: 2rem; }
+  h4 { font-size: 1rem; margin-top: 1.5rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+  p { margin: 0.6rem 0; color: var(--text); }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: 0.25rem 0; }
+
+  /* Layout */
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  nav.sidebar { background: var(--bg-soft); border-right: 1px solid var(--border); padding: 28px 22px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  nav .brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+  nav .brand-sub { font-size: 0.78rem; color: var(--text-faint); margin-bottom: 2rem; }
+  nav ul { list-style: none; padding: 0; margin: 0; }
+  nav li { margin: 0; }
+  nav a { display: block; padding: 7px 10px; margin: 1px -10px; border-radius: 6px; color: var(--text-muted); font-size: 0.86rem; transition: background var(--t-fast), color var(--t-fast); }
+  nav a:hover { background: var(--bg-elev); color: var(--text); }
+  nav .nav-section { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); margin: 1.5rem 0 0.5rem; font-weight: 600; }
+  nav .related { padding: 7px 10px; margin: 10px -10px 0; border: 1px solid var(--border); border-radius: 6px; font-size: 0.78rem; color: var(--text-faint); }
+  nav .related strong { display: block; color: var(--text-muted); margin-bottom: 3px; }
+
+  main { padding: 56px 64px 120px; max-width: 1280px; }
+  header.hero { margin-bottom: 3rem; }
+  .hero .eyebrow { color: var(--text-faint); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; font-weight: 500; }
+  .hero h1 { margin-bottom: 1rem; }
+  .hero .sub { font-size: 1.05rem; color: var(--text-muted); max-width: 760px; }
+  .meta-row { display: flex; gap: 24px; margin-top: 1.5rem; flex-wrap: wrap; }
+  .meta-row .meta-item { font-size: 0.85rem; color: var(--text-faint); }
+  .meta-row .meta-item strong { display: block; color: var(--text); font-weight: 500; margin-top: 2px; font-size: 0.95rem; }
+
+  /* Scope card — what this doc is/isn't */
+  .scope { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border-radius: var(--radius-md); overflow: hidden; margin: 1.5rem 0 2.5rem; border: 1px solid var(--border); }
+  .scope .scope-cell { background: var(--bg-soft); padding: 18px 22px; }
+  .scope .scope-cell h4 { margin: 0 0 8px; font-size: 0.78rem; }
+  .scope .scope-cell.in h4 { color: var(--good); }
+  .scope .scope-cell.out h4 { color: var(--high); }
+  .scope ul { margin: 0; padding-left: 1.1rem; font-size: 0.9rem; color: var(--text-muted); }
+  .scope li { margin: 4px 0; }
+  @media (max-width: 720px) { .scope { grid-template-columns: 1fr; } }
+
+  /* Bento grid — themes */
+  .bento { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 160px; gap: 14px; margin: 1.5rem 0 2rem; }
+  .bento .tile {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform var(--t-med), border-color var(--t-med), box-shadow var(--t-med);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+  .bento .tile:hover, .bento .tile:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+    outline: none;
+  }
+  .bento .tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, var(--tile-accent) 200%);
+    opacity: 0.08;
+    pointer-events: none;
+    transition: opacity var(--t-med);
+  }
+  .bento .tile:hover::before { opacity: 0.16; }
+  .bento .tile-head { display: flex; align-items: center; gap: 12px; }
+  .bento .tile-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--tile-accent-soft);
+    color: var(--tile-accent);
+    flex-shrink: 0;
+  }
+  .bento .tile-icon svg { width: 18px; height: 18px; }
+  .bento .tile-title { font-weight: 600; font-size: 1rem; color: var(--text); }
+  .bento .tile-count { color: var(--text-faint); font-size: 0.78rem; margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+  .bento .tile-desc { font-size: 0.86rem; color: var(--text-muted); line-height: 1.5; margin-top: auto; }
+
+  /* Bento sizes */
+  .bento .span-2 { grid-column: span 2; }
+  .bento .span-2-rows { grid-row: span 2; }
+  .bento .span-4 { grid-column: span 4; grid-auto-rows: 100px; }
+
+  /* Tile color accents */
+  .tile-cache { --tile-accent: var(--cache); --tile-accent-soft: rgba(167,139,250,0.12); }
+  .tile-obs   { --tile-accent: var(--obs);   --tile-accent-soft: rgba(52,211,153,0.12); }
+  .tile-arch  { --tile-accent: var(--arch);  --tile-accent-soft: rgba(56,189,248,0.12); }
+  .tile-fe    { --tile-accent: var(--fe);    --tile-accent-soft: rgba(244,114,182,0.12); }
+  .tile-ops   { --tile-accent: var(--ops);   --tile-accent-soft: rgba(252,211,77,0.12); }
+  .tile-data  { --tile-accent: var(--data);  --tile-accent-soft: rgba(251,146,60,0.12); }
+  .tile-qual  { --tile-accent: var(--qual);  --tile-accent-soft: rgba(192,132,252,0.12); }
+
+  @media (max-width: 1100px) {
+    .bento { grid-template-columns: repeat(2, 1fr); }
+    .bento .span-2 { grid-column: span 2; }
+    .bento .span-4 { grid-column: span 2; }
+  }
+  @media (max-width: 600px) {
+    .bento { grid-template-columns: 1fr; grid-auto-rows: auto; }
+    .bento .span-2, .bento .span-4, .bento .span-2-rows { grid-column: span 1; grid-row: auto; }
+    .bento .tile { min-height: 140px; }
+  }
+
+  /* Diagrams */
+  .diagram { background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin: 1rem 0; overflow-x: auto; }
+  .mermaid { display: flex; justify-content: center; }
+
+  /* Filters */
+  .filter-bar { display: flex; gap: 10px; margin: 1rem 0 1.5rem; flex-wrap: wrap; align-items: center; padding: 14px 18px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-md); position: sticky; top: 0; z-index: 5; backdrop-filter: blur(10px); }
+  .filter-bar .filter-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); font-weight: 600; padding-right: 8px; }
+  .filter-bar button { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 11px; border-radius: 999px; font-size: 0.78rem; cursor: pointer; font-family: inherit; transition: all var(--t-fast); }
+  .filter-bar button:hover { color: var(--text); border-color: var(--border-strong); background: var(--bg-elev); }
+  .filter-bar button.active { background: var(--bg-elev); color: var(--text); border-color: var(--accent); }
+  .filter-bar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .filter-bar .divider { width: 1px; height: 20px; background: var(--border); margin: 0 6px; }
+
+  /* Item cards */
+  .item-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 1000px) {
+    .item-grid { grid-template-columns: repeat(2, 1fr); }
+    .item-grid .full { grid-column: span 2; }
+  }
+  .item {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px 22px;
+    transition: border-color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .item:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+  .item-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 10px; }
+  .item-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-faint); letter-spacing: 0.04em; }
+  .item-title { font-weight: 600; font-size: 1.02rem; margin: 2px 0 0; line-height: 1.35; }
+  .item-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .item-why { font-size: 0.9rem; color: var(--text-muted); margin: 6px 0 12px; }
+  .item-body { font-size: 0.88rem; color: var(--text); border-top: 1px dashed var(--border); padding-top: 12px; }
+  .item-body p { margin: 4px 0; }
+  .item-body strong { color: var(--text); font-weight: 600; }
+  .item-meta-row { display: grid; grid-template-columns: 110px 1fr; gap: 6px 14px; margin-top: 12px; font-size: 0.82rem; }
+  .item-meta-row dt { color: var(--text-faint); text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.06em; padding-top: 3px; }
+  .item-meta-row dd { margin: 0; color: var(--text); }
+  .item-meta-row dd code { font-size: 0.78rem; }
+  .investigation { display: flex; gap: 10px; align-items: start; padding: 10px 12px; background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.25); border-radius: 8px; margin: 12px 0 4px; font-size: 0.83rem; color: var(--warn); }
+  .investigation svg { flex-shrink: 0; margin-top: 2px; width: 16px; height: 16px; }
+  .investigation strong { color: var(--warn); }
+
+  /* Chips */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border: 1px solid;
+    line-height: 1.5;
+  }
+  .chip-S { background: rgba(74,222,128,0.1); color: var(--good); border-color: rgba(74,222,128,0.4); }
+  .chip-M { background: rgba(251,191,36,0.1); color: var(--warn); border-color: rgba(251,191,36,0.4); }
+  .chip-L { background: rgba(251,146,60,0.1); color: var(--high); border-color: rgba(251,146,60,0.4); }
+  .chip-cache { background: rgba(167,139,250,0.12); color: var(--cache); border-color: rgba(167,139,250,0.4); }
+  .chip-obs   { background: rgba(52,211,153,0.12); color: var(--obs); border-color: rgba(52,211,153,0.4); }
+  .chip-arch  { background: rgba(56,189,248,0.12); color: var(--arch); border-color: rgba(56,189,248,0.4); }
+  .chip-fe    { background: rgba(244,114,182,0.12); color: var(--fe); border-color: rgba(244,114,182,0.4); }
+  .chip-ops   { background: rgba(252,211,77,0.12); color: var(--ops); border-color: rgba(252,211,77,0.4); }
+  .chip-data  { background: rgba(251,146,60,0.12); color: var(--data); border-color: rgba(251,146,60,0.4); }
+  .chip-qual  { background: rgba(192,132,252,0.12); color: var(--qual); border-color: rgba(192,132,252,0.4); }
+
+  /* Hidden state for filtering */
+  .item.hidden { display: none; }
+
+  /* Misc */
+  hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .footnote { font-size: 0.8rem; color: var(--text-faint); margin-top: 0.5rem; }
+  .pill {
+    display: inline-block; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px;
+    background: var(--bg-elev); color: var(--text-muted); margin-left: 6px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 0.02em;
+  }
+
+  /* Sequencing list */
+  .seq { display: grid; gap: 12px; margin: 1rem 0; }
+  .seq .seq-item { display: grid; grid-template-columns: 60px 1fr; gap: 16px; padding: 14px 18px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-sm); align-items: center; }
+  .seq .n { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--bg-elev); color: var(--accent); font-weight: 600; font-size: 0.95rem; border: 1px solid var(--border-strong); }
+  .seq .body { font-size: 0.92rem; color: var(--text); }
+  .seq .body strong { display: block; margin-bottom: 2px; color: var(--text); }
+  .seq .body small { color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar" aria-label="Section navigation">
+    <div class="brand">OSEBERG_Proff</div>
+    <div class="brand-sub">Improvement roadmap · May 2026</div>
+
+    <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to light theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span class="theme-label">Light mode</span>
+    </button>
+
+    <div class="nav-section">On this page</div>
+    <ul>
+      <li><a href="#scope">Scope</a></li>
+      <li><a href="#themes">Themes</a></li>
+      <li><a href="#future-arch">Future-state architecture</a></li>
+      <li><a href="#backlog">Backlog</a></li>
+      <li><a href="#sequencing">Suggested sequencing</a></li>
+    </ul>
+
+    <div class="nav-section">Backlog by area</div>
+    <ul>
+      <li><a href="#area-cache">Caching</a></li>
+      <li><a href="#area-obs">Observability</a></li>
+      <li><a href="#area-arch">Architecture</a></li>
+      <li><a href="#area-fe">Frontend</a></li>
+      <li><a href="#area-ops">Operations</a></li>
+      <li><a href="#area-data">Data model</a></li>
+      <li><a href="#area-qual">Code quality</a></li>
+    </ul>
+
+    <div class="related">
+      <strong>Companion documents</strong>
+      <a href="codebase-overview.html">codebase-overview.html</a> — current-state audit, risk register, .NET 10 migration plan<br>
+      <a href="billing-pipeline-plan.html">billing-pipeline-plan.html</a> — focused design for the future billing pipeline
+    </div>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Snowlion Consulting · Forward planning</div>
+      <h1>Improvement roadmap</h1>
+      <p class="sub">A prioritised, optional backlog of architectural, operational, and code-quality enhancements for OSEBERG_Proff. These are the ideas that emerged from the May 2026 codebase audit and the cache-freshness conversation — none are blocking, all earn their keep.</p>
+      <div class="meta-row">
+        <div class="meta-item">Items<strong>24 across 7 themes</strong></div>
+        <div class="meta-item">Excluded<strong>Phase 1 · .NET 10 upgrade</strong></div>
+        <div class="meta-item">Companion<strong><a href="codebase-overview.html">codebase-overview.html</a></strong></div>
+        <div class="meta-item">Generated<strong>2026-05-21</strong></div>
+      </div>
+    </header>
+
+    <!-- SCOPE -->
+    <section id="scope">
+      <div class="scope">
+        <div class="scope-cell in">
+          <h4>✓ In scope (this doc)</h4>
+          <ul>
+            <li>Cache freshness, expiry semantics, negative caching, proactive refresh</li>
+            <li>Observability beyond stock App Insights</li>
+            <li>Architectural shifts that move concerns out of the function</li>
+            <li>Frontend modernisation that isn't bug-fix-shaped</li>
+            <li>Operational ergonomics for Oseberg's customer team</li>
+            <li>Test coverage, CI, and deployment hardening</li>
+          </ul>
+        </div>
+        <div class="scope-cell out">
+          <h4>✗ Out of scope (tracked elsewhere)</h4>
+          <ul>
+            <li>Phase 1 "stop the bleed" — already committed on <code>reduce-api-requests</code></li>
+            <li>.NET 8 → .NET 10 upgrade — see <a href="codebase-overview.html#packages">codebase-overview.html</a></li>
+            <li>Critical risks (CRIT-0 through CRIT-3) — fix in the upgrade window</li>
+            <li>Function key rotation — load-bearing, do separately</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- THEMES -->
+    <section id="themes">
+    <h2>Themes at a glance</h2>
+    <p>Each tile is a backlog area. Click to jump.</p>
+
+    <div class="bento">
+      <a href="#area-cache" class="tile tile-cache span-2 span-2-rows" aria-label="Caching · 5 items">
+        <div>
+          <div class="tile-head">
+            <div class="tile-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></svg>
+            </div>
+            <div>
+              <div class="tile-title">Caching</div>
+              <div class="tile-count">5 items · S/M effort</div>
+            </div>
+          </div>
+        </div>
+        <div class="tile-desc">Make the existing premium cache actually expire, dampen repeat misses, refresh proactively, and consider distributed cache for company search if scale-out hurts hit rate. This is the area with the highest signal-to-effort ratio in the backlog.</div>
+      </a>
+
+      <a href="#area-arch" class="tile tile-arch span-2" aria-label="Architecture · 4 items">
+        <div class="tile-head">
+          <div class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
+          <div>
+            <div class="tile-title">Architecture evolution</div>
+            <div class="tile-count">4 items · M/L effort</div>
+          </div>
+        </div>
+        <div class="tile-desc">Move auth, quota, caching out of the function. APIM in front, async activity counting, unified trigger.</div>
+      </a>
+
+      <a href="#area-obs" class="tile tile-obs" aria-label="Observability · 3 items">
+        <div class="tile-head">
+          <div class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>
+          </div>
+          <div>
+            <div class="tile-title">Observability</div>
+            <div class="tile-count">3 items</div>
+          </div>
+        </div>
+        <div class="tile-desc">Custom metrics, per-tenant views, alerting.</div>
+      </a>
+
+      <a href="#area-ops" class="tile tile-ops" aria-label="Operations · 3 items">
+        <div class="tile-head">
+          <div class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
+          <div>
+            <div class="tile-title">Operations</div>
+            <div class="tile-count">3 items</div>
+          </div>
+        </div>
+        <div class="tile-desc">Tenant onboarding, backup, config drift.</div>
+      </a>
+
+      <a href="#area-fe" class="tile tile-fe span-2" aria-label="Frontend · 4 items">
+        <div class="tile-head">
+          <div class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <div>
+            <div class="tile-title">Frontend</div>
+            <div class="tile-count">4 items · S/M effort</div>
+          </div>
+        </div>
+        <div class="tile-desc">React 18 upgrade, user-visible error states, accessibility, request-timeout UX.</div>
+      </a>
+
+      <a href="#area-data" class="tile tile-data" aria-label="Data model · 2 items">
+        <div class="tile-head">
+          <div class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+          </div>
+          <div>
+            <div class="tile-title">Data model</div>
+            <div class="tile-count">2 items</div>
+          </div>
+        </div>
+        <div class="tile-desc">Activity-table consolidation, App Insights metrics.</div>
+      </a>
+
+      <a href="#area-qual" class="tile tile-qual" aria-label="Code quality · 3 items">
+        <div class="tile-head">
+          <div class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="tile-title">Code quality</div>
+            <div class="tile-count">3 items</div>
+          </div>
+        </div>
+        <div class="tile-desc">Tests, snapshot tests, CI/CD.</div>
+      </a>
+
+      <div class="tile span-4" style="background:var(--bg-elev); cursor:default;">
+        <div class="tile-head">
+          <div class="tile-icon" aria-hidden="true" style="background:rgba(125,211,252,0.12); color:var(--accent);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <div class="tile-title">When to consider doing these</div>
+            <div class="tile-count" style="color:var(--text-muted);">Bandwidth · customer ask · cumulative pain</div>
+          </div>
+        </div>
+        <div class="tile-desc">None of this is urgent today. Pick items from the cache theme first — they're the smallest changes with the most direct value, and they're the natural next layer after Phase 1 / .NET 10 land in production. Larger architectural items (APIM, auth modernisation) only earn their keep if customer count or call volume grows materially, or if a security review demands the function-key removal.</div>
+      </div>
+    </div>
+    </section>
+
+    <!-- FUTURE-STATE ARCHITECTURE -->
+    <section id="future-arch">
+    <h2>Future-state architecture (reference)</h2>
+    <p>The endpoint of the architecture-evolution items below. Useful as the north star when deciding whether a smaller change is worth doing now or worth waiting for the bigger refactor.</p>
+    <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+    subgraph D365["Dynamics 365 (Customer Tenant)"]
+      direction TB
+      Form["Account form"]
+      PCF["VirtualControl (React 18 + Fluent UI)"]
+      Form --- PCF
+    end
+
+    subgraph GW["API Gateway"]
+      APIM["Azure API Management<br/>Consumption tier<br/>• validate-jwt (Dataverse user)<br/>• rate-limit-by-key per tenant<br/>• response cache (15 min)<br/>• tenant claim → product/SKU"]
+    end
+
+    subgraph FN["Azure Function (lean)"]
+      direction TB
+      T1["HTTP Trigger<br/>lookup &#40;query | orgnr&#41;"]
+      PC1["Proff client (IHttpClientFactory)"]
+      T1 --> PC1
+    end
+
+    subgraph Async["Async activity pipeline"]
+      Q["Storage Queue<br/>activity events"]
+      Drain["Timer-triggered drain<br/>App Insights metric"]
+      Q --> Drain
+    end
+
+    subgraph ST["Storage · proffwebstorage"]
+      direction TB
+      PC[("ProffPremiumCache<br/>+ cachedAt + isMiss")]
+    end
+
+    subgraph PR["Proff.no"]
+      P1["api.proff.no"]
+      P2["ppc.proff.no"]
+    end
+
+    AI[("Application Insights<br/>custom metrics by tenant")]:::aiClass
+
+    PCF -- "OAuth bearer<br/>(Dataverse user)" --> APIM
+    APIM -- "cache miss → forward<br/>X-Tenant-Id header" --> T1
+    T1 --> Q
+    T1 -.-> PC
+    PC1 --> P1
+    PC1 --> P2
+
+    APIM -.-> AI
+    T1 -.-> AI
+    Drain -.-> AI
+
+    classDef aiClass fill:#1c2230,stroke:#3a4456,color:#9ba6b7
+    </pre>
+    </div>
+    <p class="footnote">Tenant license / quota lives in APIM products + claims, not in a custom <code>ProffConfiguration</code> table. Activity counting is async via queue + timer. The function shrinks to a Proff client.</p>
+    </section>
+
+    <!-- BACKLOG -->
+    <section id="backlog">
+    <h2>Backlog</h2>
+
+    <div class="filter-bar" role="toolbar" aria-label="Backlog filters" id="filter-bar">
+      <span class="filter-label">Effort</span>
+      <button data-filter-type="effort" data-filter-value="all" class="active" aria-pressed="true">All</button>
+      <button data-filter-type="effort" data-filter-value="S" aria-pressed="false">S</button>
+      <button data-filter-type="effort" data-filter-value="M" aria-pressed="false">M</button>
+      <button data-filter-type="effort" data-filter-value="L" aria-pressed="false">L</button>
+      <span class="divider" aria-hidden="true"></span>
+      <span class="filter-label">Area</span>
+      <button data-filter-type="area" data-filter-value="all" class="active" aria-pressed="true">All</button>
+      <button data-filter-type="area" data-filter-value="cache" aria-pressed="false">Cache</button>
+      <button data-filter-type="area" data-filter-value="obs" aria-pressed="false">Obs</button>
+      <button data-filter-type="area" data-filter-value="arch" aria-pressed="false">Arch</button>
+      <button data-filter-type="area" data-filter-value="fe" aria-pressed="false">FE</button>
+      <button data-filter-type="area" data-filter-value="ops" aria-pressed="false">Ops</button>
+      <button data-filter-type="area" data-filter-value="data" aria-pressed="false">Data</button>
+      <button data-filter-type="area" data-filter-value="qual" aria-pressed="false">Qual</button>
+      <span class="divider" aria-hidden="true"></span>
+      <button data-filter-type="investigation" data-filter-value="needs" aria-pressed="false" title="Show only items that need investigation first">⚠ Needs investigation</button>
+    </div>
+
+    <!-- ============== CACHING ============== -->
+    <h3 id="area-cache">Caching</h3>
+    <div class="item-grid">
+
+      <article class="item" data-effort="S" data-area="cache">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-CACHE-1</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Explicit <code>cachedAt</code> + 90-day TTL on premium cache</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S" title="Small effort">S</span>
+            <span class="chip chip-cache">Cache</span>
+          </div>
+        </div>
+        <p class="item-why">The current <code>ProffPremiumCache</code> dedupes correctly but never expires — after 3 months, you serve stale credit ratings indefinitely. This is the missing half of the BE-2 fix from Phase 1.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> Add a <code>cachedAt: DateTimeOffset</code> column on write; on read, return <code>null</code> if older than 90 days (fall through to Proff, write-through refreshes the row). Missing field → treat as stale → self-heals.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None — independent change. Can ship in any release window.</dd>
+            <dt>Tied to</dt><dd>Companion: <a href="codebase-overview.html#risks">Risk register</a> mentions this as a Phase-2 caveat under BE-2.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="S" data-area="cache" data-investigation="true">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-CACHE-2</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Per-entry override using Proff's own "modified" field</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-cache">Cache</span>
+          </div>
+        </div>
+        <p class="item-why">If Proff surfaces a "last updated" timestamp on the credit-rating record itself, trust Proff's freshness signal over our cache-age heuristic. Lower false-stale rate; fewer wasted refreshes.</p>
+        <div class="item-body">
+          <div class="investigation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <div><strong>Investigation needed</strong> — confirm what Proff returns. <code>CreditRating</code> already deserialises an <code>Updated: DateTime</code> field, but it's unclear whether that's the rating's recompute timestamp or just the API response time. Check Proff Premium API docs and a couple of live responses.</div>
+          </div>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd><a href="#item-RM-CACHE-1">RM-CACHE-1</a> (cachedAt) — this overrides it for newer entries</dd>
+            <dt>Decision rule</dt><dd>If <code>Updated</code> within last 90 days → serve cached. Else → refresh.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="S" data-area="cache">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-CACHE-3</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Negative caching for missing org numbers</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-cache">Cache</span>
+          </div>
+        </div>
+        <p class="item-why">When Proff returns no data for an orgnr (newly registered, deregistered, typo), the current code writes nothing — so the next user re-asks Proff. Negative caching dampens this repeat-miss pattern.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> Store a sentinel row with <code>isMiss = true</code> and a shorter TTL (1–7 days). On read, treat as cached "no data" within the window; expire faster than positive cache because new companies do appear.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>Best paired with <a href="#">RM-CACHE-1</a> (already changing the read path)</dd>
+            <dt>Watch out for</dt><dd>Don't negative-cache transient Proff outages (5xx). Only cache 200 + empty payload.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="M" data-area="cache">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-CACHE-4</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Proactive cache refresh (timer-triggered)</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-M">M</span>
+            <span class="chip chip-cache">Cache</span>
+          </div>
+        </div>
+        <p class="item-why">User-facing lookups never pay the Proff round-trip if soon-to-expire entries are refreshed in the background. Hides Proff latency entirely for hot orgnrs.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> New <code>TimerTrigger</code> function runs nightly, scans <code>ProffPremiumCache</code> for entries with <code>cachedAt</code> between 80 and 90 days old, refreshes them via Proff. Bounded fetch budget per run to avoid spend spikes.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd><a href="#">RM-CACHE-1</a> (need <code>cachedAt</code> to find candidates)</dd>
+            <dt>Budget guard</dt><dd>Cap refreshes per night (e.g., 200) and skip if any tenant is over quota.</dd>
+            <dt>Cost note</dt><dd>This <em>adds</em> Proff calls — only worth it if cold credit-rating latency hurts UX or if you want to amortise refresh spend across off-peak hours.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="M" data-area="cache" data-investigation="true">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-CACHE-5</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Cache stampede protection</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-M">M</span>
+            <span class="chip chip-cache">Cache</span>
+          </div>
+        </div>
+        <p class="item-why">Two concurrent requests for the same expired orgnr both miss the cache → both hit Proff → both write back. Cheap problem at current scale, expensive if scale grows.</p>
+        <div class="item-body">
+          <div class="investigation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <div><strong>Investigation needed</strong> — measure actual concurrent-miss rate via App Insights custom dimension on cache decisions (depends on <a href="#area-obs">RM-OBS-1</a>). If &lt; 1%, skip this entirely.</div>
+          </div>
+          <p><strong>Options if measured high:</strong></p>
+          <ul>
+            <li><strong>Lock entry in cache:</strong> write a "refreshing" sentinel with short TTL on miss; concurrent callers see it and either wait or return previous-stale.</li>
+            <li><strong>Single-flight in-process:</strong> a per-worker <code>ConcurrentDictionary&lt;string, Task&gt;</code> so concurrent calls within one worker share one Proff fetch. Doesn't help cross-instance.</li>
+            <li><strong>Distributed lock via Azure Blob lease:</strong> stronger but adds latency to every cache miss. Only if scale-out becomes load-bearing.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="item full" data-effort="L" data-area="cache">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-CACHE-6</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Distributed cache for short-lived search/enrich data</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-L">L</span>
+            <span class="chip chip-cache">Cache</span>
+          </div>
+        </div>
+        <p class="item-why">The current <code>IMemoryCache</code> is per-worker. Once Azure scales out to N instances, hit rate drops to ~1/N for the same query stream. Distributed cache fixes it.</p>
+        <div class="item-body">
+          <p><strong>Three pragmatic options, in order of operational weight:</strong></p>
+          <ol>
+            <li><strong>APIM response cache (no Redis).</strong> If you adopt <a href="#item-RM-ARCH-1">RM-ARCH-1</a>, the gateway caches by URL+headers shared across all workers — free. Best fit.</li>
+            <li><strong>Azure Cache for Redis Basic tier</strong> (~kr 150–500/month). Swap <code>IMemoryCache</code> for <code>IDistributedCache</code>. Single dependency, well-understood, but a service to monitor and pay for.</li>
+            <li><strong>Azure Table</strong> as cheap distributed cache. Same shape as <code>ProffPremiumCache</code> already. Works, but adds latency vs Redis on every cache check.</li>
+          </ol>
+          <dl class="item-meta-row">
+            <dt>Triggered by</dt><dd>Sustained scale-out (Premium plan, multiple Always Ready instances) or measurable cross-instance hit-rate drop</dd>
+            <dt>Don't do this yet</dt><dd>Current Phase 1 work targets a single Consumption instance with a low call volume — per-worker cache is fine.</dd>
+          </dl>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============== OBSERVABILITY ============== -->
+    <h3 id="area-obs">Observability</h3>
+    <div class="item-grid">
+
+      <article class="item" data-effort="S" data-area="obs">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-OBS-1</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Custom App Insights metrics for cache + Proff</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-obs">Obs</span>
+          </div>
+        </div>
+        <p class="item-why">Today you can't answer "what's our cache hit rate?" or "which tenant is consuming most of the Proff budget?" without writing custom KQL against request logs. Custom metrics make these first-class.</p>
+        <div class="item-body">
+          <p><strong>Metrics to emit:</strong></p>
+          <ul>
+            <li><code>proff.cache.decision</code> with dimensions <code>{ endpoint, decision: hit|miss|stale, tenant }</code></li>
+            <li><code>proff.outbound.latency_ms</code> with dimension <code>{ endpoint, status }</code></li>
+            <li><code>proff.activity.count</code> with dimension <code>{ tenant, sku: basic|premium }</code> — eventually replaces <a href="#item-RM-DATA-2">RM-DATA-2</a></li>
+          </ul>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>Adopting the OpenTelemetry path from the <a href="codebase-overview.html#packages">.NET 10 migration</a> makes this trivial — emit via <code>Meter</code>.</dd>
+            <dt>Quick win</dt><dd>Unblocks <a href="#">RM-CACHE-5</a> by giving you the data to decide whether stampede protection is worth building.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="M" data-area="obs">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-OBS-2</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Per-tenant dashboards (Workbook)</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-M">M</span>
+            <span class="chip chip-obs">Obs</span>
+          </div>
+        </div>
+        <p class="item-why">Customers periodically ask "how many lookups did we make last month?". Today the answer requires you to KQL the activity table. A parameterised Azure Workbook lets either internal support or the customer themselves answer.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> One Workbook with a tenant-domain dropdown showing: requests/day, cache hit %, top-N searched orgnrs, error rate. Each customer gets a read-only link scoped by parameter.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd><a href="#item-RM-OBS-1">RM-OBS-1</a> (custom metrics tagged with tenant)</dd>
+            <dt>Bonus</dt><dd>Workbook can be exported as PDF for invoice attachments if Oseberg ever bills by usage.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="S" data-area="obs">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-OBS-3</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Alerting for Proff outages and quota spikes</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-obs">Obs</span>
+          </div>
+        </div>
+        <p class="item-why">You discovered the 17k/day call spike weeks after it started. A simple "outbound calls to api.proff.no &gt; threshold" alert catches the next one in minutes.</p>
+        <div class="item-body">
+          <p><strong>Alerts to wire up:</strong></p>
+          <ul>
+            <li>Proff 5xx rate &gt; 5% over 15 min → Snowlion on-call + Oseberg</li>
+            <li>Outbound calls to <code>api.proff.no</code> per hour above rolling-7-day P90 × 2 → Slack notification</li>
+            <li>Single tenant requests &gt; 1000/hour → likely runaway loop on the form</li>
+          </ul>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None — works on existing App Insights data</dd>
+          </dl>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============== ARCHITECTURE ============== -->
+    <h3 id="area-arch">Architecture evolution</h3>
+    <div class="item-grid">
+
+      <article class="item full" id="item-RM-ARCH-1" data-effort="L" data-area="arch">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-ARCH-1</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">API Management in front of the function</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-L">L</span>
+            <span class="chip chip-arch">Arch</span>
+          </div>
+        </div>
+        <p class="item-why">Auth, quota, rate limiting, and response caching are all undifferentiated heavy lifting currently done in custom .NET. APIM solves all four in policy. The function becomes a thin Proff client (~150 lines).</p>
+        <div class="item-body">
+          <p><strong>What you get:</strong></p>
+          <ul>
+            <li><strong>Function key disappears</strong> — APIM validates a Dataverse user JWT inbound; no more secret in the PCF bundle</li>
+            <li><strong>Per-tenant rate limiting</strong> via <code>rate-limit-by-key</code> on the tenant claim</li>
+            <li><strong>Response cache</strong> shared across all function instances (15-min cache-lookup / cache-store)</li>
+            <li><strong>License/SKU enforcement</strong> moves to APIM products + subscription keys — no more <code>ProffConfiguration</code> table read on the hot path</li>
+            <li><strong>~50% less code</strong> in the function</li>
+          </ul>
+          <dl class="item-meta-row">
+            <dt>Cost</dt><dd>APIM Consumption tier: $0.042/10k calls, first 1M/month free. For Oseberg's volume: ~kr 0/month indefinitely.</dd>
+            <dt>Dependencies</dt><dd>None technically, but easier to land after .NET 10 + Phase 1 are stable</dd>
+            <dt>Cutover risk</dt><dd>Coordinate PCF URL change with the gateway go-live. Run both in parallel for a week, then retire the direct function endpoint.</dd>
+            <dt>Don't do this if</dt><dd>The team isn't going to learn APIM policy XML. The value evaporates if it becomes a black box.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="S" data-area="arch">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-ARCH-2</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Async activity counting via Storage Queue</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-arch">Arch</span>
+          </div>
+        </div>
+        <p class="item-why">Today every request blocks on two table writes (activity counter upsert + read). Moving it off the hot path drops user-facing latency and removes a failure class. <strong>Also a prerequisite for the billing pipeline</strong> — see the dedicated plan.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> HTTP trigger enqueues a <code>{ tenant, endpoint, timestamp, requestId, sku, cacheStatus }</code> message and returns. A separate <code>QueueTrigger</code> function drains and appends to an event log (<code>BillableEvents</code>).</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None for the queue mechanic itself — but the full billing pipeline depends on this and is designed in <a href="billing-pipeline-plan.html">billing-pipeline-plan.html</a></dd>
+            <dt>Cost</dt><dd>Storage Queue is essentially free at this volume (kr &lt; 1/month)</dd>
+            <dt>Note</dt><dd>This is intentionally framed broader than the original draft — the activity tables underpin Oseberg's invoicing, not just ops tracking</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="S" data-area="arch">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-ARCH-3</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Unify <code>ProffCompanyLookup</code> + <code>ProffPremiumLookup</code></h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-arch">Arch</span>
+          </div>
+        </div>
+        <p class="item-why">The two trigger classes are ~80% duplicated. One trigger with an <code>?sku=basic|premium</code> param removes copy-paste drift and halves the surface area to maintain.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> Single HTTP trigger routes on a query parameter. Caching strategy chosen per SKU (memory cache for basic, table cache for premium). PCF only needs to know one URL.</p>
+          <dl class="item-meta-row">
+            <dt>Best done with</dt><dd>The .NET 10 port — fresh project, no migration regret</dd>
+            <dt>Risk</dt><dd>Low. The shapes are already aligned through <code>InputParams</code>.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="L" data-area="arch">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-ARCH-4</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Auth modernisation (drop function key entirely)</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-L">L</span>
+            <span class="chip chip-arch">Arch</span>
+          </div>
+        </div>
+        <p class="item-why">Function keys in PCF bundles are a chronic leak risk. CRM-user-token-based auth (Easy Auth or APIM JWT validation) ties access to the logged-in D365 user, removes the bundled secret, and gives you audit-grade attribution per call.</p>
+        <div class="item-body">
+          <p><strong>Two paths to get there:</strong></p>
+          <ul>
+            <li><strong>With APIM (<a href="#item-RM-ARCH-1">RM-ARCH-1</a>):</strong> APIM's <code>validate-jwt</code> against the Dataverse OAuth tenant. Clean. Recommended.</li>
+            <li><strong>Without APIM:</strong> Easy Auth on the function app directly. Works but you lose the gateway-level caching/rate-limiting.</li>
+          </ul>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>Ideally <a href="#item-RM-ARCH-1">RM-ARCH-1</a> first</dd>
+            <dt>Customer ask</dt><dd>Likely required eventually for security review / ISO27001 / customer compliance audit. Pre-empt by ~6 months.</dd>
+          </dl>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============== FRONTEND ============== -->
+    <h3 id="area-fe">Frontend</h3>
+    <div class="item-grid">
+
+      <article class="item" data-effort="S" data-area="fe">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-FE-1</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">React 16.8.6 → 17.0.2 upgrade (PCF max)</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-fe">FE</span>
+          </div>
+        </div>
+        <p class="item-why">React 16.8.6 is 5+ years old. <strong>PCF's platform-library system caps at React 17.0.2</strong> — going higher isn't supported. The 16→17 bump is small but worth doing for the new JSX transform, gradual upgrade primitives, and to land on the highest supported version while it stays patched.</p>
+        <div class="item-body">
+          <div class="investigation" style="background:rgba(96,165,250,0.08); border-color:rgba(96,165,250,0.3); color:var(--info);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <div><strong style="color:var(--info);">PCF constraint</strong> — the <code>platform-library</code> manifest declaration only accepts React <strong>16.8.6 or 17.0.2</strong>. React 18 is not available on the PCF runtime; <code>useId</code>, <code>useTransition</code>, <code>useDeferredValue</code> and <code>createRoot</code> remain off-limits. Plan accordingly: keep the hand-rolled debounce + AbortController pattern.</div>
+          </div>
+          <p><strong>What:</strong> Bump React + react-dom to 17.0.2 in <code>package.json</code>. Update <code>platform-library</code> version in <code>ControlManifest.Input.xml</code> to <code>17.0.2</code>. The 16→17 jump has no developer-facing breaking changes for typical hooks-based code.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None — frontend-only release</dd>
+            <dt>Worth knowing</dt><dd>Fluent UI v8 is compatible with both 16 and 17. No UI library bump needed.</dd>
+            <dt>Realistic value</dt><dd>Smaller than originally drafted. Mainly: closer to the supported ceiling, picks up the new JSX transform, opens the door to event-delegation changes some libraries depend on. Not transformative.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="S" data-area="fe">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-FE-2</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">User-visible error UX</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-fe">FE</span>
+          </div>
+        </div>
+        <p class="item-why">Today, fetch failures go to <code>console.error</code>. Users see empty results indistinguishable from "no matches", so they retry — burning more Proff calls. Showing a banner instead breaks the loop.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> A Fluent UI <code>MessageBar</code> above the result area on fetch failure with retry hint. Pair with <code>ErrorBoundary</code> wrapping <code>SearchComponent</code> so any render exception shows "Lookup unavailable" instead of a blank PCF.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None</dd>
+            <dt>Maps to</dt><dd>Risk register <a href="codebase-overview.html#risks">MED-4 + LOW-5</a></dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="M" data-area="fe">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-FE-3</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Accessibility pass</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-M">M</span>
+            <span class="chip chip-fe">FE</span>
+          </div>
+        </div>
+        <p class="item-why">Result cards aren't keyboard-navigable, the SearchBox has no <code>aria-describedby</code>, dialog has no live-region for status. Some Oseberg customers (public sector, larger enterprises) require WCAG AA — this is a "yes/no" gate for them.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> Make result cards <code>role="option"</code> with <code>tabIndex</code> and arrow-key navigation. Wire ARIA labels on SearchBox, Dropdown, Dialog. Add alt text or <code>aria-hidden</code> on flag SVGs. Test with VoiceOver and NVDA.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>Best done after <a href="#item-RM-FE-1">RM-FE-1</a> (React 18 has better a11y primitives)</dd>
+            <dt>Maps to</dt><dd>Risk register <a href="codebase-overview.html#risks">LOW-4</a></dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="S" data-area="fe">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-FE-4</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Request timeout + loading states</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-fe">FE</span>
+          </div>
+        </div>
+        <p class="item-why">Function cold start can take 3–5 seconds. There's no spinner, no timeout. Users assume nothing happened and retype, multiplying calls.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> Add 15s <code>AbortController</code> timeout in <code>handleSearch</code>. Show a Fluent UI <code>Spinner</code> in the result area while in-flight. Show "Still searching…" if &gt; 3s.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None</dd>
+            <dt>Maps to</dt><dd>Risk register <a href="codebase-overview.html#risks">MED-5</a></dd>
+          </dl>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============== OPERATIONS ============== -->
+    <h3 id="area-ops">Operations</h3>
+    <div class="item-grid">
+
+      <article class="item" data-effort="M" data-area="ops">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-OPS-1</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Self-service tenant provisioning UI</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-M">M</span>
+            <span class="chip chip-ops">Ops</span>
+          </div>
+        </div>
+        <p class="item-why">Adding a new customer today means manually inserting a row in the <code>ProffConfiguration</code> table. Error-prone, manual, and hidden from Oseberg's customer team.</p>
+        <div class="item-body">
+          <p><strong>Two flavours, pick one:</strong></p>
+          <ul>
+            <li><strong>Lightweight:</strong> A small Power Apps canvas app over the Azure Table — Oseberg's team toggles flags themselves. Half a day.</li>
+            <li><strong>Heavier:</strong> A Power Automate flow triggered from a Dataverse "Customer" record. Couples provisioning to the existing CRM workflow.</li>
+          </ul>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None</dd>
+            <dt>Worth doing if</dt><dd>Oseberg adds &gt; 1 customer per month</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="S" data-area="ops">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-OPS-2</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Backup of <code>ProffConfiguration</code></h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-ops">Ops</span>
+          </div>
+        </div>
+        <p class="item-why">If <code>proffwebstorage</code> is accidentally deleted or corrupted, every tenant loses service simultaneously. The config table is small but load-bearing — a daily snapshot to a separate storage account costs cents.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> Nightly timer-triggered function exports <code>ProffConfiguration</code> rows to a backup container (different account, ideally different region). 30-day retention.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None</dd>
+            <dt>Recovery test</dt><dd>Document the restore steps and run a tabletop exercise once a quarter.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="M" data-area="ops">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-OPS-3</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Infra-as-code for the function apps</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-M">M</span>
+            <span class="chip chip-ops">Ops</span>
+          </div>
+        </div>
+        <p class="item-why">Three function apps in <code>dev-crm-rg</code> were created click-ops. Bicep or Terraform makes spinning up the .NET 10 replacement repeatable, reviewable, and recoverable.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> Bicep template covering: function app, consumption plan, App Insights, storage account, all app settings, role assignments. Output a parameterised module that can stand up another environment in 5 minutes.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None, but ideal time is during the .NET 10 / new-app exercise</dd>
+            <dt>Don't try to retrofit</dt><dd>Existing apps — too much drift. Document the new one as IaC from day one.</dd>
+          </dl>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============== DATA MODEL ============== -->
+    <h3 id="area-data">Data model cleanup</h3>
+    <div class="item-grid">
+
+      <article class="item" data-effort="S" data-area="data">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-DATA-1</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Consolidate <code>ProffRequestActivity</code> + <code>ProffPremiumRequestActivity</code></h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-data">Data</span>
+          </div>
+        </div>
+        <p class="item-why">Two activity tables with near-identical schema for two endpoints. One table with a <code>sku</code> column does the job and removes a code-duplication source.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> Single <code>ProffActivity</code> table with row key <code>{key}_{yyyyMM}</code> where <code>key</code> is the tenant or orgnr depending on context, plus a <code>sku</code> field (<code>basic|premium</code>). One <code>ActivityService</code> class.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None functionally, but coordinate with any tenant-facing reports that read the old tables directly</dd>
+            <dt>Migration</dt><dd>One-time copy script; old tables retained read-only for 1 month.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="M" data-area="data" data-investigation="true">
+        <div class="item-head">
+          <div>
+            <div class="item-id" id="item-RM-DATA-2">RM-DATA-2</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Replace activity tables with App Insights custom metrics</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-M">M</span>
+            <span class="chip chip-data">Data</span>
+          </div>
+        </div>
+        <p class="item-why">Activity counts are observability data, not business data — they don't need their own persistence layer. App Insights stores them, gives you free KQL queries, retention, and pretty dashboards.</p>
+        <div class="item-body">
+          <div class="investigation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <div><strong>Investigation needed</strong> — confirm Oseberg's invoicing / customer-reporting process doesn't directly query the activity tables. If a Power BI report or invoice template reads them, that integration needs porting first.</div>
+          </div>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd><a href="#item-RM-OBS-1">RM-OBS-1</a> (custom metric emission) + <a href="#">RM-DATA-1</a> if not already done</dd>
+            <dt>Payoff</dt><dd>Removes 2 tables, removes a hot-path table write per request, removes a class of throttling failures</dd>
+          </dl>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============== CODE QUALITY ============== -->
+    <h3 id="area-qual">Code quality</h3>
+    <div class="item-grid">
+
+      <article class="item" data-effort="M" data-area="qual">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-QUAL-1</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">Unit tests for services + integration tests for triggers</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-M">M</span>
+            <span class="chip chip-qual">Qual</span>
+          </div>
+        </div>
+        <p class="item-why">There's no test project. Phase 1 fixes had to be eyeball-verified. Every future change carries the same regression risk.</p>
+        <div class="item-body">
+          <p><strong>Suggested split:</strong></p>
+          <ul>
+            <li><strong>Unit (xUnit + Moq):</strong> <code>CompanyDataService.ConvertJArrayToCompanyDataList</code>, <code>InputParams</code> validation, <code>ProffActivityService</code> month-rollover logic, cache-decision logic</li>
+            <li><strong>Integration:</strong> Function host run + Azurite (local Azure Table emulator) + WireMock for Proff — covers the wire shape end-to-end</li>
+          </ul>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd>None — ideal companion to the .NET 10 port</dd>
+            <dt>First test to write</dt><dd>The cache-stale logic in <a href="#">RM-CACHE-1</a> — small, isolated, prevents the exact regression that motivated this whole roadmap.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="S" data-area="qual">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-QUAL-2</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">JSON snapshot tests for HTTP responses</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-S">S</span>
+            <span class="chip chip-qual">Qual</span>
+          </div>
+        </div>
+        <p class="item-why">The biggest risk in the .NET 10 + Newtonsoft → STJ migration is silent JSON-shape drift breaking the PCF. Snapshot tests catch it in CI before deploy.</p>
+        <div class="item-body">
+          <p><strong>What:</strong> Verify-style snapshot tests of the two HTTP responses for representative inputs. Failing diff = "you changed the PCF contract"; reviewer decides if intentional.</p>
+          <dl class="item-meta-row">
+            <dt>Library</dt><dd>Verify.Xunit — minimal ceremony, diff-tool integration</dd>
+            <dt>Coverage target</dt><dd>2 endpoints × 3 representative payloads = 6 snapshots. Maintainable.</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="item" data-effort="M" data-area="qual">
+        <div class="item-head">
+          <div>
+            <div class="item-id">RM-QUAL-3</div>
+            <h4 class="item-title" style="text-transform:none; letter-spacing:0; color:var(--text); margin-top:2px;">CI/CD pipeline (Azure DevOps or GitHub Actions)</h4>
+          </div>
+          <div class="item-meta">
+            <span class="chip chip-M">M</span>
+            <span class="chip chip-qual">Qual</span>
+          </div>
+        </div>
+        <p class="item-why">Today, deploys are local <code>dotnet publish</code> → manual zip → portal upload. The release process is in someone's head and easy to get wrong. A pipeline removes the bus factor.</p>
+        <div class="item-body">
+          <p><strong>Minimal pipeline:</strong> build → run tests → deploy to <code>osb-test</code> on PR-to-main → manual approval → promote to LIVE. PCF: <code>pcf-scripts build</code> → solution pack → solution import via PAC CLI.</p>
+          <dl class="item-meta-row">
+            <dt>Dependencies</dt><dd><a href="#">RM-QUAL-1</a> + <a href="#">RM-QUAL-2</a> for the pipeline to actually catch things</dd>
+            <dt>Platform</dt><dd>Azure DevOps fits Oseberg's existing tenant (no extra account, group SSO). GitHub Actions is fine too if the repo stays on github.com/Oseberg-Solutions.</dd>
+          </dl>
+        </div>
+      </article>
+    </div>
+    </section>
+
+    <!-- SEQUENCING -->
+    <section id="sequencing">
+    <h2>Suggested sequencing</h2>
+    <p>None of this is mandatory. If you only do four things from this doc, do these in this order:</p>
+    <div class="seq">
+      <div class="seq-item">
+        <div class="n">1</div>
+        <div class="body"><strong>RM-CACHE-1 — explicit <code>cachedAt</code> + 90-day TTL</strong><small>Smallest possible change, fixes the actual cache bug the user articulated. Bundle with .NET 10 release.</small></div>
+      </div>
+      <div class="seq-item">
+        <div class="n">2</div>
+        <div class="body"><strong>RM-OBS-1 — custom metrics</strong><small>Tiny add when you adopt OpenTelemetry in the .NET 10 port. Unblocks future decisions (RM-CACHE-5, RM-OBS-2).</small></div>
+      </div>
+      <div class="seq-item">
+        <div class="n">3</div>
+        <div class="body"><strong>RM-CACHE-3 + RM-CACHE-2 — negative caching + Proff "Updated" override</strong><small>Bundled with RM-CACHE-1, same code path. Need to confirm RM-CACHE-2's investigation before doing it.</small></div>
+      </div>
+      <div class="seq-item">
+        <div class="n">4</div>
+        <div class="body"><strong>RM-FE-2 + RM-FE-4 — error UX + request timeout</strong><small>Closes the user-experience loop that drives retry-induced call amplification. Pair with the next PCF release.</small></div>
+      </div>
+    </div>
+    <p>Everything else is bandwidth-dependent. The architectural items (APIM, auth, distributed cache) only earn their keep if call volume, customer count, or compliance requirements push them onto the critical path.</p>
+    </section>
+
+    <hr />
+    <p class="footnote">Generated 2026-05-21 from the <a href="codebase-overview.html">codebase-overview.html</a> audit and the cache-freshness conversation. Single-file HTML, no build step. Path: <code>OSEBERG_Proff/docs/improvement-roadmap.html</code>.</p>
+  </main>
+</div>
+
+<script>
+  // Mermaid theme configs — keyed by theme name
+  const MERMAID_THEMES = {
+    dark: {
+      background: '#161b22', primaryColor: '#1c2230', primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#3a4456', lineColor: '#7dd3fc', secondaryColor: '#1c2230',
+      tertiaryColor: '#0e1116', mainBkg: '#1c2230', textColor: '#e6edf3'
+    },
+    light: {
+      background: '#ffffff', primaryColor: '#f1f5f9', primaryTextColor: '#0f172a',
+      primaryBorderColor: '#cbd5e1', lineColor: '#0284c7', secondaryColor: '#f1f5f9',
+      tertiaryColor: '#f8fafc', mainBkg: '#ffffff', textColor: '#0f172a'
+    }
+  };
+
+  function initMermaid(theme) {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      fontFamily: 'Inter, sans-serif',
+      themeVariables: MERMAID_THEMES[theme]
+    });
+  }
+  function renderMermaid() {
+    document.querySelectorAll('.mermaid').forEach(el => {
+      if (!el.dataset.original) el.dataset.original = el.textContent.trim();
+      else { el.innerHTML = el.dataset.original; }
+      el.removeAttribute('data-processed');
+    });
+    mermaid.run({ querySelector: '.mermaid' });
+  }
+
+  // Theme controller — sets data-theme on <html>, persists choice, re-renders mermaid
+  (function themeController() {
+    const root = document.documentElement;
+    const toggle = document.getElementById('theme-toggle');
+    const label = toggle?.querySelector('.theme-label');
+    const STORAGE_KEY = 'oseberg-docs-theme';
+
+    function getInitial() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored === 'light' || stored === 'dark') return stored;
+      } catch (e) {}
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+
+    function apply(theme, { rerender = true } = {}) {
+      if (theme === 'light') root.setAttribute('data-theme', 'light');
+      else root.removeAttribute('data-theme');
+      if (label) label.textContent = theme === 'light' ? 'Dark mode' : 'Light mode';
+      if (toggle) toggle.setAttribute('aria-label', `Switch to ${theme === 'light' ? 'dark' : 'light'} theme`);
+      initMermaid(theme);
+      if (rerender) renderMermaid();
+    }
+
+    let current = getInitial();
+    apply(current, { rerender: false });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderMermaid, { once: true });
+    } else {
+      renderMermaid();
+    }
+
+    toggle?.addEventListener('click', () => {
+      current = current === 'light' ? 'dark' : 'light';
+      try { localStorage.setItem(STORAGE_KEY, current); } catch (e) {}
+      apply(current);
+    });
+
+    try {
+      const mq = window.matchMedia('(prefers-color-scheme: light)');
+      mq.addEventListener?.('change', (e) => {
+        if (localStorage.getItem(STORAGE_KEY)) return;
+        current = e.matches ? 'light' : 'dark';
+        apply(current);
+      });
+    } catch (e) {}
+  })();
+
+  // Filters — independent effort + area axes, with optional investigation filter
+  const state = { effort: 'all', area: 'all', investigation: false };
+  const bar = document.getElementById('filter-bar');
+
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const type = btn.dataset.filterType;
+    const value = btn.dataset.filterValue;
+
+    if (type === 'investigation') {
+      state.investigation = !state.investigation;
+      btn.classList.toggle('active', state.investigation);
+      btn.setAttribute('aria-pressed', String(state.investigation));
+    } else {
+      state[type] = value;
+      bar.querySelectorAll(`button[data-filter-type="${type}"]`).forEach(b => {
+        const isActive = b.dataset.filterValue === value;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-pressed', String(isActive));
+      });
+    }
+
+    document.querySelectorAll('.item').forEach(item => {
+      const effortOk = state.effort === 'all' || item.dataset.effort === state.effort;
+      const areaOk = state.area === 'all' || item.dataset.area === state.area;
+      const invOk = !state.investigation || item.dataset.investigation === 'true';
+      item.classList.toggle('hidden', !(effortOk && areaOk && invOk));
+    });
+
+    // Hide whole section headers if all items in that section are hidden
+    document.querySelectorAll('h3[id^="area-"]').forEach(h => {
+      const grid = h.nextElementSibling;
+      if (!grid) return;
+      const anyVisible = Array.from(grid.querySelectorAll('.item')).some(i => !i.classList.contains('hidden'));
+      h.style.display = anyVisible ? '' : 'none';
+      grid.style.display = anyVisible ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>

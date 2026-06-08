@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>OSEBERG_Proff — Codebase Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+  :root {
+    --bg: #0e1116;
+    --bg-soft: #161b22;
+    --bg-elev: #1c2230;
+    --border: #2a3242;
+    --border-strong: #3a4456;
+    --text: #e6edf3;
+    --text-muted: #9ba6b7;
+    --text-faint: #6b7587;
+    --accent: #7dd3fc;
+    --accent-deep: #0ea5e9;
+    --good: #4ade80;
+    --info: #60a5fa;
+    --warn: #fbbf24;
+    --high: #fb923c;
+    --crit: #f87171;
+    --pcf: #a78bfa;
+    --fn: #34d399;
+    --azure: #38bdf8;
+    --proff: #f472b6;
+    --d365: #fcd34d;
+    --bg-elev-2: #232b3b;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+    --t-fast: 150ms;
+    --t-med: 220ms;
+  }
+  /* Light theme overrides — applied when html[data-theme="light"] */
+  :root[data-theme="light"] {
+    --bg: #f8fafc;
+    --bg-soft: #ffffff;
+    --bg-elev: #f1f5f9;
+    --bg-elev-2: #e2e8f0;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-faint: #64748b;
+    --accent: #0284c7;
+    --accent-deep: #0369a1;
+    --good: #16a34a;
+    --info: #2563eb;
+    --warn: #d97706;
+    --high: #ea580c;
+    --crit: #dc2626;
+    --pcf: #7c3aed;
+    --fn: #059669;
+    --azure: #0284c7;
+    --proff: #db2777;
+    --d365: #ca8a04;
+    --shadow-sm: 0 1px 3px rgba(15,23,42,0.06);
+    --shadow-md: 0 4px 12px rgba(15,23,42,0.08);
+  }
+  /* Badge overrides for light theme — rgba backgrounds need a flip */
+  :root[data-theme="light"] .badge-crit { background: rgba(220,38,38,0.08);  color: #b91c1c; border-color: rgba(220,38,38,0.3); }
+  :root[data-theme="light"] .badge-high { background: rgba(234,88,12,0.08);  color: #c2410c; border-color: rgba(234,88,12,0.3); }
+  :root[data-theme="light"] .badge-med  { background: rgba(217,119,6,0.08);  color: #b45309; border-color: rgba(217,119,6,0.3); }
+  :root[data-theme="light"] .badge-low  { background: rgba(37,99,235,0.08);  color: #1d4ed8; border-color: rgba(37,99,235,0.3); }
+  :root[data-theme="light"] .badge-good { background: rgba(22,163,74,0.08);  color: #15803d; border-color: rgba(22,163,74,0.3); }
+  :root[data-theme="light"] .badge-pcf  { background: rgba(124,58,237,0.08); color: #6d28d9; border-color: rgba(124,58,237,0.3); }
+  :root[data-theme="light"] .badge-fn   { background: rgba(5,150,105,0.08);  color: #047857; border-color: rgba(5,150,105,0.3); }
+  :root[data-theme="light"] .badge-azure{ background: rgba(2,132,199,0.08);  color: #0369a1; border-color: rgba(2,132,199,0.3); }
+  /* Callouts / inline elements need bg flips for light theme */
+  :root[data-theme="light"] code { color: #0369a1; }
+  :root[data-theme="light"] .callout.crit { background: rgba(220,38,38,0.04); }
+  :root[data-theme="light"] .callout.warn { background: rgba(217,119,6,0.04); }
+  :root[data-theme="light"] .callout.good { background: rgba(22,163,74,0.04); }
+
+  /* Theme toggle button — same shape in both themes */
+  .theme-toggle {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  }
+  .theme-toggle:hover { background: var(--bg-elev-2); color: var(--text); border-color: var(--border-strong); }
+  .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .theme-toggle svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .theme-toggle .icon-sun { display: block; }
+  .theme-toggle .icon-moon { display: none; }
+  :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+  :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+  .theme-toggle .theme-label { flex: 1; text-align: left; }
+
+  /* Sticky filter bar (was static before — promoted for consistency with roadmap doc) */
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, system-ui, sans-serif; font-size: 15px; line-height: 1.55; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-deep); }
+  code, pre, .mono { font-family: 'JetBrains Mono', ui-monospace, SF Mono, Menlo, monospace; }
+  code { background: var(--bg-elev); border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px; font-size: 0.85em; color: var(--accent); }
+  pre { background: var(--bg-elev); border: 1px solid var(--border); padding: 14px 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
+  pre code { background: none; border: none; padding: 0; color: var(--text); font-size: inherit; }
+  h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  h1 { font-size: 2.4rem; }
+  h2 { font-size: 1.7rem; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: 3.5rem; }
+  h3 { font-size: 1.2rem; margin-top: 2.5rem; }
+  h4 { font-size: 1rem; margin-top: 1.5rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+  p { margin: 0.6rem 0; color: var(--text); }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: 0.25rem 0; }
+
+  /* Layout */
+  .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  nav.sidebar { background: var(--bg-soft); border-right: 1px solid var(--border); padding: 28px 22px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  nav .brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+  nav .brand-sub { font-size: 0.78rem; color: var(--text-faint); margin-bottom: 2rem; }
+  nav ul { list-style: none; padding: 0; margin: 0; }
+  nav li { margin: 0; }
+  nav a { display: block; padding: 7px 10px; margin: 1px -10px; border-radius: 6px; color: var(--text-muted); font-size: 0.86rem; transition: all 0.15s; }
+  nav a:hover { background: var(--bg-elev); color: var(--text); }
+  nav .nav-section { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); margin: 1.5rem 0 0.5rem; font-weight: 600; }
+
+  main { padding: 56px 64px 120px; max-width: 1280px; }
+  header.hero { margin-bottom: 3rem; }
+  .hero .eyebrow { color: var(--text-faint); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; font-weight: 500; }
+  .hero h1 { margin-bottom: 1rem; }
+  .hero .sub { font-size: 1.05rem; color: var(--text-muted); max-width: 760px; }
+  .meta-row { display: flex; gap: 24px; margin-top: 1.5rem; flex-wrap: wrap; }
+  .meta-row .meta-item { font-size: 0.85rem; color: var(--text-faint); }
+  .meta-row .meta-item strong { display: block; color: var(--text); font-weight: 500; margin-top: 2px; font-size: 0.95rem; }
+
+  /* Cards & callouts */
+  .card { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 22px 24px; margin: 1rem 0; }
+  .card-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin: 1rem 0; }
+  .card-grid .card { margin: 0; }
+  .card .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); margin-bottom: 0.4rem; font-weight: 600; }
+  .card .value { font-size: 1.4rem; font-weight: 600; color: var(--text); }
+  .card .sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+  .callout { border-left: 3px solid var(--accent); background: var(--bg-soft); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 1rem 0; font-size: 0.92rem; }
+  .callout.warn { border-color: var(--warn); }
+  .callout.crit { border-color: var(--crit); }
+  .callout.good { border-color: var(--good); }
+  .callout .head { font-weight: 600; margin-bottom: 0.2rem; }
+  .callout.crit .head { color: var(--crit); }
+  .callout.warn .head { color: var(--warn); }
+  .callout.good .head { color: var(--good); }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid; }
+  .badge-crit { background: rgba(248,113,113,0.12); color: var(--crit); border-color: rgba(248,113,113,0.4); }
+  .badge-high { background: rgba(251,146,60,0.12); color: var(--high); border-color: rgba(251,146,60,0.4); }
+  .badge-med { background: rgba(251,191,36,0.12); color: var(--warn); border-color: rgba(251,191,36,0.4); }
+  .badge-low { background: rgba(96,165,250,0.12); color: var(--info); border-color: rgba(96,165,250,0.4); }
+  .badge-good { background: rgba(74,222,128,0.12); color: var(--good); border-color: rgba(74,222,128,0.4); }
+  .badge-pcf { background: rgba(167,139,250,0.12); color: var(--pcf); border-color: rgba(167,139,250,0.4); }
+  .badge-fn { background: rgba(52,211,153,0.12); color: var(--fn); border-color: rgba(52,211,153,0.4); }
+  .badge-azure { background: rgba(56,189,248,0.12); color: var(--azure); border-color: rgba(56,189,248,0.4); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.88rem; vertical-align: top; }
+  th { background: var(--bg-elev); color: var(--text-muted); font-weight: 500; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(125,211,252,0.03); }
+  td.mono, th.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; }
+
+  /* Diagrams */
+  .diagram { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 1rem 0; overflow-x: auto; }
+  .diagram svg { display: block; margin: 0 auto; max-width: 100%; }
+  .mermaid { display: flex; justify-content: center; }
+
+  /* D3 graph */
+  #graph-container { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 1rem 0; min-height: 640px; position: relative; }
+  #graph-svg { width: 100%; height: 640px; cursor: grab; }
+  #graph-svg:active { cursor: grabbing; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; padding-bottom: 14px; font-size: 0.82rem; color: var(--text-muted); }
+  .legend .swatch { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .node-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; fill: var(--text); pointer-events: none; }
+  .link { stroke: var(--border-strong); stroke-opacity: 0.55; }
+  .link.calls { stroke: var(--accent); stroke-opacity: 0.5; }
+  .link.contains { stroke-dasharray: 3 3; stroke-opacity: 0.3; }
+  .node circle { stroke: var(--bg); stroke-width: 2; cursor: pointer; }
+  .node.dim { opacity: 0.15; }
+  .link.dim { opacity: 0.05; }
+
+  /* Risk rows */
+  .risk-list { list-style: none; padding: 0; }
+  .risk-item { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin: 8px 0; display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: start; }
+  .risk-item .risk-id { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-faint); }
+  .risk-item .risk-title { font-weight: 500; }
+  .risk-item .risk-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+  .risk-item .risk-file { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--text-faint); margin-top: 4px; }
+  .risk-item .risk-fix { font-size: 0.85rem; color: var(--text); margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
+  .risk-item .risk-fix strong { color: var(--good); font-weight: 500; }
+
+  /* Filters */
+  .filter-bar { display: flex; gap: 10px; margin: 1rem 0; flex-wrap: wrap; align-items: center; }
+  .filter-bar button { background: var(--bg-soft); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 6px; font-size: 0.82rem; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .filter-bar button:hover { color: var(--text); border-color: var(--border-strong); }
+  .filter-bar button.active { background: var(--bg-elev); color: var(--text); border-color: var(--accent); }
+
+  /* Folder cards */
+  .folder { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 16px 20px; }
+  .folder .name { font-family: 'JetBrains Mono', monospace; font-size: 0.92rem; color: var(--accent); }
+  .folder .desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* Misc */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 1rem 0; }
+  @media (max-width: 900px) {
+    .two-col { grid-template-columns: 1fr; }
+    .layout { grid-template-columns: 1fr; }
+    nav.sidebar { position: relative; height: auto; }
+    main { padding: 32px 24px 80px; }
+  }
+  .footnote { font-size: 0.8rem; color: var(--text-faint); margin-top: 0.5rem; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* Highlight box for action steps */
+  .step { display: grid; grid-template-columns: 36px 1fr; gap: 16px; margin: 12px 0; padding: 14px 18px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; }
+  .step .n { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-elev); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; border: 1px solid var(--border-strong); }
+  .step .body strong { display: block; margin-bottom: 3px; }
+  .step .body { font-size: 0.92rem; color: var(--text-muted); }
+  .step .body code { font-size: 0.82rem; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar" aria-label="Section navigation">
+    <div class="brand">OSEBERG_Proff</div>
+    <div class="brand-sub">Codebase overview · May 2026</div>
+
+    <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to light theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      <span class="theme-label">Light mode</span>
+    </button>
+
+    <div class="nav-section">Map</div>
+    <ul>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#graph">Codebase graph</a></li>
+      <li><a href="#flows">Data flows</a></li>
+      <li><a href="#io">External IO</a></li>
+    </ul>
+
+    <div class="nav-section">.NET 10 Upgrade</div>
+    <ul>
+      <li><a href="#why-now">Why now</a></li>
+      <li><a href="#packages">Package matrix</a></li>
+      <li><a href="#breaking">Breaking changes</a></li>
+      <li><a href="#siteconfig">Site config</a></li>
+      <li><a href="#gotchas">Known gotchas</a></li>
+      <li><a href="#program-cs">Recommended Program.cs</a></li>
+    </ul>
+
+    <div class="nav-section">Health</div>
+    <ul>
+      <li><a href="#risks">Risk register</a></li>
+      <li><a href="#folders">Folder audit</a></li>
+    </ul>
+
+    <div class="nav-section">Action</div>
+    <ul>
+      <li><a href="#plan">New function plan</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Snowlion Consulting · Internal</div>
+      <h1>OSEBERG_Proff codebase overview</h1>
+      <p class="sub">A single-page audit of the PCF + Azure Function integration that powers Proff.no company lookup inside Oseberg's customers' Dynamics 365 environments. Use this as the briefing document before the new function is provisioned on .NET 10.</p>
+      <div class="meta-row">
+        <div class="meta-item">Repo<strong>Oseberg-Solutions/OSEBERG_Proff</strong></div>
+        <div class="meta-item">Branch<strong>reduce-api-requests</strong></div>
+        <div class="meta-item">Backend target<strong>net8.0 → net10.0</strong></div>
+        <div class="meta-item">Frontend stack<strong>React 16.8.6 · Fluent UI 8 · PCF v1</strong></div>
+        <div class="meta-item">Generated<strong>2026-05-21</strong></div>
+      </div>
+    </header>
+
+    <!-- OVERVIEW -->
+    <section id="overview">
+    <h2>Overview</h2>
+    <p>The system is a thin, end-to-end vertical: a custom PCF control on the D365 Account form, a small Azure Function that proxies and caches Proff.no's API, and four Azure Tables for multi-tenant license/quota state and one premium cache. There is no message bus, no background processing, no auth besides a function key.</p>
+
+    <div class="card-grid">
+      <div class="card"><div class="label">Codebases</div><div class="value">2 active + 2 legacy</div><div class="sub">LIVE-ProffCompanyLookup (.NET 8) · VirtualControl (PCF) · htmlResource (D365 web resources) · two stale folders</div></div>
+      <div class="card"><div class="label">Function apps in Azure</div><div class="value">3</div><div class="sub"><span class="mono">OSB-proff-company-lookup</span> (LIVE) · <span class="mono">osb-test</span> · <span class="mono">Company-Lookup</span> (legacy)</div></div>
+      <div class="card"><div class="label">HTTP triggers</div><div class="value">2</div><div class="sub"><span class="mono">ProffCompanyLookup</span> (search + enrich) · <span class="mono">ProffPremiumLookup</span> (credit rating)</div></div>
+      <div class="card"><div class="label">D365 fields written</div><div class="value">25</div><div class="sub">Bound via <span class="mono">ControlManifest.Input.xml</span></div></div>
+      <div class="card"><div class="label">Open risks</div><div class="value"><span style="color:var(--crit)">4</span> crit · <span style="color:var(--high)">3</span> high · <span style="color:var(--warn)">5</span> med</div><div class="sub">Plus 6 low-severity hygiene items</div></div>
+      <div class="card"><div class="label">.NET cliff</div><div class="value">~6 months</div><div class="sub">.NET 8 EOL Nov 10, 2026. Recommended target: <strong>.NET 10 LTS</strong> (Nov 2028)</div></div>
+    </div>
+
+    <div class="callout">
+      <div class="head">Phase 1 status — committed, not yet deployed</div>
+      <p>Four commits on <span class="mono">reduce-api-requests</span> address the ~17k calls/day blow-up (frontend: dedup + AbortController; backend: in-process <span class="mono">IMemoryCache</span> + premium cache write-through). They need to be verified on <span class="mono">osb-test</span> before LIVE.</p>
+    </div>
+
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section id="architecture">
+    <h2>Architecture at a glance</h2>
+    <p>High-level component view. Solid arrows are HTTP; dashed are Azure SDK calls.</p>
+    <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+    subgraph D365["Dynamics 365 (Customer Tenant)"]
+      direction TB
+      Form["Account form"]
+      PCF["VirtualControl<br/>PCF (React 16.8.6 + Fluent UI 8)"]
+      Form --- PCF
+    end
+
+    subgraph FA["Azure Function App<br/>OSB-proff-company-lookup · dev-crm-rg · Norway East"]
+      direction TB
+      T1["HTTP Trigger<br/>ProffCompanyLookup"]
+      T2["HTTP Trigger<br/>ProffPremiumLookup"]
+      MC[("IMemoryCache<br/>15 min TTL")]
+      T1 -.-> MC
+    end
+
+    subgraph ST["Storage · proffwebstorage"]
+      direction TB
+      C[("ProffConfiguration<br/>tenant licenses")]
+      RA[("ProffRequestActivity<br/>monthly counts")]
+      PA[("ProffPremiumRequestActivity")]
+      PC[("ProffPremiumCache<br/>credit ratings")]
+    end
+
+    subgraph PR["Proff.no"]
+      direction TB
+      P1["api.proff.no<br/>companies/eniropro · companies/register"]
+      P2["ppc.proff.no<br/>CreditRating/&#123;orgnr&#125;"]
+    end
+
+    AI[("Application Insights")]:::aiClass
+
+    PCF -- "GET ?query+country+domain<br/>(function key)" --> T1
+    PCF -- "GET ?organisationNumber<br/>(function key)" --> T2
+
+    T1 -- "Authorization: Token PROFF_API_KEY" --> P1
+    T2 -- "Authorization: Token PROFF_PREMIUM_API_TOKEN" --> P2
+
+    T1 -.-> C
+    T1 -.-> RA
+    T2 -.-> C
+    T2 -.-> PA
+    T2 -.-> PC
+
+    T1 -.-> AI
+    T2 -.-> AI
+
+    classDef aiClass fill:#1c2230,stroke:#3a4456,color:#9ba6b7
+    </pre>
+    </div>
+
+    <h3>How a typical request fans out</h3>
+    <div class="two-col">
+      <div class="card">
+        <h4>Search path</h4>
+        <p>User types in PCF → debounce 1s → AbortController cancels previous → <span class="mono">GET /api/ProffCompanyLookup?query=...</span> → tenant license check → memory-cache check → Proff list-search → JArray → <span class="mono">CompanyData[]</span> → activity counter +1 → JSON response → render cards.</p>
+      </div>
+      <div class="card">
+        <h4>Enrich path</h4>
+        <p>User clicks a card → <span class="mono">GET ...?organisationNumber=...</span> → tenant license check → memory-cache check (key <span class="mono">enrich|NO|{orgnr}</span>) → Proff register endpoint → field remap → JSON response → PCF caches into private <span class="mono">_*</span> fields → <span class="mono">notifyOutputChanged()</span> → 25 D365 fields populated.</p>
+      </div>
+    </div>
+    </section>
+
+    <!-- CODEBASE GRAPH -->
+    <section id="graph">
+    <h2>Codebase graph</h2>
+    <p>Force-directed view of every class in the active codebase. Drag nodes. Click to highlight neighbours. Edge style: <span style="color:var(--accent)">solid</span> = calls, <span style="color:var(--text-faint)">dashed</span> = contains.</p>
+
+    <div class="legend">
+      <span class="swatch"><span class="dot" style="background:var(--pcf)"></span>PCF (React / TypeScript)</span>
+      <span class="swatch"><span class="dot" style="background:var(--fn)"></span>Function entry (HTTP trigger)</span>
+      <span class="swatch"><span class="dot" style="background:var(--accent)"></span>Service / wrapper</span>
+      <span class="swatch"><span class="dot" style="background:var(--proff)"></span>External (Proff)</span>
+      <span class="swatch"><span class="dot" style="background:var(--azure)"></span>Azure Table</span>
+      <span class="swatch"><span class="dot" style="background:var(--d365)"></span>D365 form field</span>
+      <span class="swatch"><span class="dot" style="background:#9ca3af"></span>Model / DTO</span>
+    </div>
+
+    <div id="graph-container"><svg id="graph-svg"></svg></div>
+    <p class="footnote">Generated from the May 2026 source tree. Nodes: 28. Edges: 51. Built with d3-force-link.</p>
+    </section>
+
+    <!-- DATA FLOWS -->
+    <section id="flows">
+    <h2>Data flow sequences</h2>
+
+    <h3>1. Search request (user typing a company name)</h3>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant P as PCF / Search.tsx
+    participant F as ProffCompanyLookup<br/>(HTTP trigger)
+    participant Cfg as ProffConfiguration<br/>(Azure Table)
+    participant MC as IMemoryCache
+    participant Pr as api.proff.no
+    participant RA as ProffRequestActivity
+    U->>P: Types "Systemet AS"
+    Note over P: Debounce 1s,<br/>abort prior fetch
+    P->>F: GET ?query=&country=NO&domain=...
+    F->>Cfg: EntityHasActiveSubscription(domain)
+    F->>MC: Get("search|NO|Systemet AS")
+    alt cache miss
+      F->>Pr: GET /companies/eniropro/NO?name=...<br/>Token PROFF_API_KEY
+      Pr-->>F: JSON array
+      F->>MC: Set(15 min)
+    end
+    F->>RA: Upsert {domain}_{yyyyMM} count++
+    F-->>P: CompanyData[] (Newtonsoft JSON)
+    P-->>U: Renders result cards
+    </pre></div>
+
+    <h3>2. Enrichment request (user picks a card)</h3>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant P as PCF
+    participant V as VirtualControl<br/>(index.ts)
+    participant F as ProffCompanyLookup
+    participant Cfg as ProffConfiguration
+    participant MC as IMemoryCache
+    participant Pr as api.proff.no
+    participant Form as D365 Account form
+    U->>P: Clicks card
+    opt name + orgnr both filled
+      P-->>U: Confirmation dialog
+    end
+    P->>F: GET ?organisationNumber=890012345&country=NO
+    F->>Cfg: EntityHasActiveSubscription(domain)
+    F->>MC: Get("enrich|NO|890012345")
+    alt cache miss
+      F->>Pr: GET /companies/register/NO/890012345
+      Pr-->>F: Detail JSON
+      F->>MC: Set(15 min)
+    end
+    F-->>P: JObject (mapped fields)
+    P->>V: onCardClick(merged item)
+    V->>V: cache 23 fields into private _*
+    V->>Form: notifyOutputChanged() → getOutputs()
+    Form-->>U: 25 fields populated (modified, not yet saved)
+    </pre></div>
+
+    <h3>3. Premium credit rating</h3>
+    <div class="diagram"><pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant P as PCF / external caller
+    participant F as ProffPremiumLookup
+    participant Cfg as ProffConfiguration
+    participant PC as ProffPremiumCache
+    participant Pr as ppc.proff.no
+    participant PA as ProffPremiumRequestActivity
+    P->>F: GET ?organisationNumber=...&country=NO&domain=...
+    F->>Cfg: DoesEntityHavePremiumLicenseAsync(domain)
+    F->>PC: GetPremiumInfoAsync(orgNr, NO)
+    alt table-cache hit
+      PC-->>F: cached Dictionary
+      F-->>P: 200 OK (cached)
+    else miss
+      F->>Pr: GET /CreditRating/{orgNr}<br/>Token PROFF_PREMIUM_API_TOKEN
+      Pr-->>F: CreditRating JSON
+      F->>PC: CreateOrUpdatePremiumInfoAsync (write-through)
+      F->>PA: Upsert {orgnr}_{yyyyMM} count++
+      F-->>P: 200 OK (fresh)
+    end
+    </pre></div>
+    </section>
+
+    <!-- EXTERNAL IO -->
+    <section id="io">
+    <h2>External IO surface</h2>
+    <h3>HTTP endpoints called outbound from the function</h3>
+    <table>
+      <thead><tr><th>Service</th><th>Base</th><th>Endpoint</th><th>Auth</th><th>Caller</th></tr></thead>
+      <tbody>
+        <tr><td>Proff list-search (name)</td><td class="mono">api.proff.no</td><td class="mono">GET /companies/eniropro/{country}?name={q}</td><td class="mono">Token PROFF_API_KEY</td><td class="mono">ProffApiService.FetchCompanyDataAsync</td></tr>
+        <tr><td>Proff list-search (industry)</td><td class="mono">api.proff.no</td><td class="mono">GET /companies/eniropro/{country}?industry={q}</td><td class="mono">Token PROFF_API_KEY</td><td class="mono">ProffApiService.FetchCompanyDataAsync</td></tr>
+        <tr><td>Proff register (detail)</td><td class="mono">api.proff.no</td><td class="mono">GET /companies/register/{country}/{orgnr}</td><td class="mono">Token PROFF_API_KEY</td><td class="mono">ProffApiService.GetDetailedCompanyInfoCopy</td></tr>
+        <tr><td>Proff Premium credit rating</td><td class="mono">ppc.proff.no</td><td class="mono">GET /CreditRating/{orgnr}</td><td class="mono">Token PROFF_PREMIUM_API_TOKEN</td><td class="mono">ProffPremiumApiService.GetCreditScore</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Azure Tables (storage account <code>proffwebstorage</code>)</h3>
+    <table>
+      <thead><tr><th>Table</th><th>PartitionKey</th><th>RowKey</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">ProffConfiguration</td><td class="mono">{domain}</td><td class="mono">{domain}</td><td>Per-tenant license flags (active_subscription, premium_subscription)</td></tr>
+        <tr><td class="mono">ProffRequestActivity</td><td class="mono">"domain"</td><td class="mono">{domain}_{yyyyMM}</td><td>Monthly request count per CRM tenant</td></tr>
+        <tr><td class="mono">ProffPremiumRequestActivity</td><td class="mono">"domain"</td><td class="mono">{orgnr}_{yyyyMM}</td><td>Monthly credit-rating call count per orgnr</td></tr>
+        <tr><td class="mono">ProffPremiumCache</td><td class="mono">{countryCode}</td><td class="mono">{orgnr}</td><td>Long-lived cache of credit ratings (no code-managed TTL)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Secrets in use</h3>
+    <table>
+      <thead><tr><th>Variable</th><th>Where</th><th>Validated?</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">PROFF_API_KEY</td><td>Function App settings</td><td><span class="badge badge-crit">No</span> read once at ctor, no null-check</td></tr>
+        <tr><td class="mono">PROFF_PREMIUM_API_TOKEN</td><td>Function App settings</td><td><span class="badge badge-crit">No</span></td></tr>
+        <tr><td class="mono">AZURE_PROFF_WEBSTORAGE_CONNECTIONSTRING</td><td>Function App settings</td><td><span class="badge badge-crit">No</span> fails on first table op if missing</td></tr>
+        <tr><td class="mono">AZURE_FUNCTION_API_KEY</td><td><strong>VirtualControl/config/config.ts</strong></td><td><span class="badge badge-crit">Committed in git history</span> needs rotation independent of any deploy</td></tr>
+      </tbody>
+    </table>
+    </section>
+
+    <!-- WHY NOW -->
+    <section id="why-now">
+    <h2>.NET 10 — why now</h2>
+    <div class="two-col">
+      <div>
+        <p>Your .NET 8 isolated worker runs out of Microsoft support on <strong>November 10, 2026</strong> — about six months from today. Two things happen on that same day:</p>
+        <ul>
+          <li>.NET 8 itself reaches end-of-support (LTS sunset)</li>
+          <li>The Azure Functions <strong>in-process</strong> model is killed entirely (doesn't apply to you — you're already on isolated, but worth noting)</li>
+        </ul>
+        <p>.NET 9 (STS) ends support the same month, so picking 9 means doing this whole exercise twice. <strong>.NET 10 LTS</strong> is the right target: supported until November 2028, GA on Azure Functions isolated since Feb 19, 2026, and you're standing up new infrastructure anyway.</p>
+      </div>
+      <div>
+        <table>
+          <thead><tr><th>Version</th><th>Type</th><th>GA</th><th>EOL</th></tr></thead>
+          <tbody>
+            <tr><td>.NET 8</td><td>LTS</td><td>Nov 2023</td><td style="color:var(--crit)">Nov 10, 2026</td></tr>
+            <tr><td>.NET 9</td><td>STS</td><td>Nov 2024</td><td style="color:var(--high)">Nov 2026</td></tr>
+            <tr style="background:rgba(74,222,128,0.05)"><td><strong>.NET 10</strong></td><td><strong>LTS</strong></td><td>Nov 2025</td><td style="color:var(--good)"><strong>Nov 2028</strong></td></tr>
+            <tr><td>.NET 11</td><td>STS</td><td>Nov 2026</td><td>Nov 2028</td></tr>
+            <tr><td>.NET 12</td><td>LTS</td><td>Nov 2027</td><td>Nov 2030</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </section>
+
+    <!-- PACKAGE MATRIX -->
+    <section id="packages">
+    <h2>Package version matrix</h2>
+    <p>From the current <code>LIVE-ProffCompanyLookup.csproj</code> to the May 2026 versions compatible with .NET 10 isolated. Most jumps are major (1.x → 2.x) for the Worker family — that's expected; it's the boundary where .NET 10 support was added.</p>
+    <table>
+      <thead><tr><th>Package</th><th>Today (.NET 8)</th><th>Target (.NET 10)</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">Microsoft.Azure.Functions.Worker</td><td class="mono">1.22.0</td><td class="mono">2.52.0</td><td>2.50.0 minimum for .NET 10. Major-version jump.</td></tr>
+        <tr><td class="mono">Microsoft.Azure.Functions.Worker.Sdk</td><td class="mono">1.17.2</td><td class="mono">2.0.7</td><td>2.0.5 minimum. Adds <code>dotnet run</code> + container-build defaults.</td></tr>
+        <tr><td class="mono">…Worker.Extensions.Http</td><td class="mono">3.1.0</td><td class="mono">3.3.0</td><td>Pure bump.</td></tr>
+        <tr><td class="mono">…Worker.Extensions.Http.AspNetCore</td><td class="mono">1.2.1</td><td class="mono">2.1.0</td><td>Major bump <strong>required</strong> for IHostApplicationBuilder.</td></tr>
+        <tr><td class="mono">…Worker.ApplicationInsights</td><td class="mono">1.2.0</td><td class="mono">2.50.0</td><td>Major bump. Pair carefully — see ⚠ below.</td></tr>
+        <tr style="background:rgba(248,113,113,0.06)"><td class="mono">Microsoft.ApplicationInsights.WorkerService</td><td class="mono">2.22.0</td><td class="mono">2.23.0 — <strong>NOT 3.x</strong></td><td><span class="badge badge-crit">trap</span> 3.0/3.1/3.1.1 all throw <code>TypeLoadException</code> against the Functions worker. <a href="https://github.com/Azure/azure-functions-dotnet-worker/issues/3322">Issue #3322</a> unresolved. Pin 2.23.0, or migrate to OpenTelemetry.</td></tr>
+        <tr><td class="mono">Microsoft.Extensions.Configuration.UserSecrets</td><td class="mono">8.0.0</td><td class="mono">10.0.8</td><td>Match the TFM. 9.x and 10.x both work.</td></tr>
+        <tr><td class="mono">Newtonsoft.Json</td><td class="mono">13.0.3</td><td class="mono">13.0.4 (or drop)</td><td>Optional. See "Newtonsoft considerations" below.</td></tr>
+        <tr><td class="mono">Azure.Data.Tables</td><td class="mono">12.8.3</td><td class="mono">12.11.0</td><td>No API breaks. Targets net8.0 + netstandard2.0; runs on net10.0.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>If you go full OpenTelemetry (recommended for greenfield)</h3>
+    <table>
+      <thead><tr><th>Package</th><th>Version</th><th>GA</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">Microsoft.Azure.Functions.Worker.OpenTelemetry</td><td class="mono">1.2.0</td><td>Apr 2026</td></tr>
+        <tr><td class="mono">Azure.Monitor.OpenTelemetry.Exporter</td><td class="mono">1.8.0+</td><td>Apr 2026</td></tr>
+        <tr><td class="mono">OpenTelemetry.Extensions.Hosting</td><td class="mono">latest 1.x</td><td>GA</td></tr>
+        <tr><td class="mono">OpenTelemetry.Instrumentation.Http</td><td class="mono">1.10.0+</td><td>GA</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn">
+      <div class="head">Do NOT use the Azure Monitor Distro inside the worker</div>
+      <p>It bundles <code>AspNetCoreInstrumentation</code>, which double-counts HTTP requests against the Functions host's own request telemetry. Use <code>Azure.Monitor.OpenTelemetry.Exporter</code> (not the <code>…Distro</code> package).</p>
+    </div>
+    </section>
+
+    <!-- BREAKING -->
+    <section id="breaking">
+    <h2>Breaking changes you actually have to think about</h2>
+
+    <h3>The non-events</h3>
+    <ul>
+      <li><code>HostBuilder().ConfigureFunctionsWebApplication()</code> works unchanged on .NET 10.</li>
+      <li><code>&lt;FrameworkReference Include="Microsoft.AspNetCore.App" /&gt;</code> is still the correct pattern — keep it.</li>
+      <li><code>&lt;AzureFunctionsVersion&gt;v4&lt;/AzureFunctionsVersion&gt;</code> stays at v4 (the host is independent of the worker .NET version).</li>
+      <li><code>services.AddMemoryCache()</code>: no API change. Your Phase 1 cache work moves as-is.</li>
+      <li>ASP.NET Core integration HTTP triggers (<code>HttpRequest</code>/<code>IActionResult</code>): no breaking changes.</li>
+    </ul>
+
+    <h3>The optional new path</h3>
+    <p>You can switch the bootstrap to <code>FunctionsApplication.CreateBuilder(args)</code> which returns an <code>IHostApplicationBuilder</code> — cleaner, matches modern ASP.NET Core minimal hosting. Requires Worker 2.x. Both APIs are supported side-by-side; pick the new one for the new function.</p>
+
+    <h3>Newtonsoft considerations (the one likely to bite)</h3>
+    <p>The default serializer in the isolated worker has always been System.Text.Json. Unless you wired Newtonsoft into <code>WorkerOptions.Serializer</code>, your function already serialises via STJ. But the defaults differ in ways your PCF consumer can choke on:</p>
+    <table>
+      <thead><tr><th>Behavior</th><th>Newtonsoft default</th><th>STJ default</th></tr></thead>
+      <tbody>
+        <tr><td>Property naming</td><td>PascalCase</td><td><strong>camelCase</strong></td></tr>
+        <tr><td>Quoted numbers (<code>"123"</code> → int)</td><td>Permissive</td><td>Strict — throws unless <code>NumberHandling.AllowReadingFromString</code></td></tr>
+        <tr><td>NaN / Infinity floats</td><td>Allowed</td><td>Throws</td></tr>
+        <tr><td>Dictionary keys</td><td>As-written</td><td>Camelcased</td></tr>
+        <tr><td><code>TimeSpan</code></td><td>ISO 8601 duration</td><td>Constant <code>"hh:mm:ss"</code></td></tr>
+      </tbody>
+    </table>
+    <p>Three pragmatic choices:</p>
+    <ol>
+      <li><strong>Keep Newtonsoft</strong> for HTTP triggers via <code>services.AddMvc().AddNewtonsoftJson()</code>. Lowest risk; zero PCF change.</li>
+      <li><strong>Match STJ to Newtonsoft defaults</strong>: <code>PropertyNamingPolicy = null</code> to preserve PascalCase shape the PCF expects today.</li>
+      <li><strong>Move PCF to camelCase</strong>: cleanest long-term, but requires a PCF release. Park this for a later phase.</li>
+    </ol>
+    <p>Snapshot-test the JSON output of both functions before and after the bump. Two endpoints, ten minutes of work, complete protection.</p>
+
+    </section>
+
+    <!-- SITE CONFIG -->
+    <section id="siteconfig">
+    <h2>Site configuration on the new Function App</h2>
+    <p>Nothing genuinely new versus .NET 8 — same shape, new version values.</p>
+    <table>
+      <thead><tr><th>Setting</th><th>Type</th><th>Value</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">FUNCTIONS_WORKER_RUNTIME</td><td>App setting</td><td class="mono">dotnet-isolated</td><td>Unchanged</td></tr>
+        <tr><td class="mono">FUNCTIONS_EXTENSION_VERSION</td><td>App setting</td><td class="mono">~4</td><td>Host stays at v4</td></tr>
+        <tr><td class="mono">netFrameworkVersion</td><td>siteConfig (Windows)</td><td class="mono">v10.0</td><td>Set via CLI/ARM, not the portal's Configuration blade</td></tr>
+        <tr><td class="mono">linuxFxVersion</td><td>siteConfig (Linux)</td><td class="mono">DOTNET-ISOLATED|10.0</td><td>Linux Consumption <strong>does not support .NET 10</strong> — use Flex or Premium</td></tr>
+        <tr><td class="mono">APPLICATIONINSIGHTS_CONNECTION_STRING</td><td>App setting</td><td>full connection string</td><td>Required</td></tr>
+        <tr style="background:rgba(248,113,113,0.04)"><td class="mono">APPINSIGHTS_INSTRUMENTATIONKEY</td><td>App setting</td><td><strong>do not set</strong></td><td>Deprecated; rejected in new regions</td></tr>
+        <tr><td class="mono">AzureWebJobsStorage</td><td>App setting</td><td>storage conn or identity-prefix</td><td>Unchanged</td></tr>
+        <tr><td class="mono">WEBSITE_RUN_FROM_PACKAGE</td><td>App setting</td><td class="mono">1</td><td>Recommended on Consumption; not needed on Flex</td></tr>
+      </tbody>
+    </table>
+    </section>
+
+    <!-- GOTCHAS -->
+    <section id="gotchas">
+    <h2>Known gotchas (May 2026)</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="label">⚠ App Insights 3.x</div>
+        <p><code>Microsoft.ApplicationInsights.WorkerService</code> 3.0/3.1/3.1.1 throws <code>TypeLoadException</code> against the Functions worker. Microsoft has stated no fix is planned. Pin at <strong>2.23.0</strong> or migrate fully to OpenTelemetry.</p>
+      </div>
+      <div class="card">
+        <div class="label">⚠ Exit code 150 on deploy</div>
+        <p>Multiple users on Flex Consumption with .NET 10 + Worker 2.51.0 + Sdk 2.0.7 reporting <code>dotnet exited with code 150 (0x96)</code>. Cause: <code>function.deps.json</code> referencing net8.0 runtime artifacts. Clean publish, don't mix SDKs in CI.</p>
+      </div>
+      <div class="card">
+        <div class="label">⚠ Linux Consumption</div>
+        <p>Azure CLI will let you set .NET 10 on Linux Consumption, but the app won't start. Use Flex (recommended for new apps) or Premium on Linux. Windows Consumption is fine.</p>
+      </div>
+      <div class="card">
+        <div class="label">⚠ Local debugging</div>
+        <p><code>local.settings.json</code> needs <code>APPLICATIONINSIGHTS_CONNECTION_STRING</code> set even for local runs once on the OTel path. A dummy <code>InstrumentationKey=00000000-0000-0000-0000-000000000000</code> works.</p>
+      </div>
+      <div class="card">
+        <div class="label">⚠ Middleware response headers</div>
+        <p>Headers set after <code>await next(context)</code> can be lost — response may already be flushed. Set on <code>context.GetInvocationResult().Value</code> before return.</p>
+      </div>
+      <div class="card">
+        <div class="label">⚠ HttpClient lifetime</div>
+        <p>Your existing static <code>HttpClient</code> with per-request header mutation is a known footgun (see risk register CRIT-2/CRIT-3). Fix during the upgrade via <code>services.AddHttpClient&lt;T&gt;()</code>.</p>
+      </div>
+    </div>
+    </section>
+
+    <!-- PROGRAM.CS -->
+    <section id="program-cs">
+    <h2>Recommended <code>Program.cs</code> for the new function</h2>
+    <pre><code>using Microsoft.Azure.Functions.Worker.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry.Logs;
+using OpenTelemetry;
+
+var builder = FunctionsApplication.CreateBuilder(args);
+
+builder.ConfigureFunctionsWebApplication();
+
+// State
+builder.Services.AddMemoryCache();
+
+// HttpClient via factory — replaces the static HttpClient footgun
+builder.Services.AddHttpClient&lt;IProffClient, ProffClient&gt;(c =&gt;
+{
+    c.BaseAddress = new Uri("https://api.proff.no/");
+    c.Timeout = TimeSpan.FromSeconds(15);
+});
+builder.Services.AddHttpClient&lt;IProffPremiumClient, ProffPremiumClient&gt;(c =&gt;
+{
+    c.BaseAddress = new Uri("https://ppc.proff.no/");
+    c.Timeout = TimeSpan.FromSeconds(15);
+});
+
+// Per-table-storage-name singletons (avoids the per-request `new` pattern)
+builder.Services.AddSingleton&lt;IConfigurationTable&gt;(_ =&gt; new AzureTable("ProffConfiguration"));
+builder.Services.AddSingleton&lt;IRequestActivityTable&gt;(_ =&gt; new AzureTable("ProffRequestActivity"));
+builder.Services.AddSingleton&lt;IPremiumCacheTable&gt;(_ =&gt; new AzureTable("ProffPremiumCache"));
+builder.Services.AddSingleton&lt;IPremiumActivityTable&gt;(_ =&gt; new AzureTable("ProffPremiumRequestActivity"));
+
+// Telemetry — OpenTelemetry path, not the broken classic AI 3.x
+builder.Services
+    .AddOpenTelemetry()
+    .UseFunctionsWorkerDefaults()
+    .UseAzureMonitorExporter();
+
+builder.Logging.AddOpenTelemetry(b =&gt; b.IncludeScopes = true);
+
+// JSON: preserve PascalCase to keep the PCF consumer working unchanged
+builder.Services.AddMvc().AddJsonOptions(o =&gt;
+{
+    o.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
+
+// Fail fast on missing config
+foreach (var key in new[] { "PROFF_API_KEY", "PROFF_PREMIUM_API_TOKEN", "AZURE_PROFF_WEBSTORAGE_CONNECTIONSTRING" })
+    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(key)))
+        throw new InvalidOperationException($"Missing app setting: {key}");
+
+builder.Build().Run();</code></pre>
+    <p class="footnote">This template addresses risks CRIT-1, CRIT-2, CRIT-3, HIGH-1, HIGH-2, MED-3 from the register below in one go.</p>
+    </section>
+
+    <!-- RISK REGISTER -->
+    <section id="risks">
+    <h2>Risk register</h2>
+    <p>18 items found in the active codebase. Severity-coded. Filter by area:</p>
+    <div class="filter-bar" id="risk-filters">
+      <button class="active" data-filter="all">All (18)</button>
+      <button data-filter="crit">Critical (4)</button>
+      <button data-filter="high">High (3)</button>
+      <button data-filter="med">Medium (5)</button>
+      <button data-filter="low">Low (6)</button>
+      <button data-filter="backend">Backend</button>
+      <button data-filter="frontend">Frontend</button>
+      <button data-filter="security">Security</button>
+    </div>
+
+    <ul class="risk-list" id="risk-list">
+      <li class="risk-item" data-sev="crit" data-area="frontend security">
+        <span class="risk-id">CRIT-0</span>
+        <div>
+          <div class="risk-title">Function API key committed in source <span class="badge badge-crit">Critical</span> <span class="badge badge-pcf">PCF</span></div>
+          <div class="risk-desc">Production Azure Function key is hard-coded in <code>config.ts</code> and present in git history. Anyone with repo read access can call the function.</div>
+          <div class="risk-file">VirtualControl/VirtualControl/config/config.ts:4</div>
+          <div class="risk-fix"><strong>Fix:</strong> Rotate the key now (regardless of this upgrade). Move loading to environment-based config injection at build time, or front the function with Easy Auth / a CRM-authenticated proxy.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="crit" data-area="backend">
+        <span class="risk-id">CRIT-1</span>
+        <div>
+          <div class="risk-title">Shared static HttpClient with per-request header mutation <span class="badge badge-crit">Critical</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc"><code>ProffApiService.httpClient</code> is <code>private static readonly</code> but <code>DefaultRequestHeaders.Authorization</code> is reassigned on each call. Concurrent invocations race on the header, producing intermittent 401s or cross-tenant headers.</div>
+          <div class="risk-file">LIVE-ProffCompanyLookup/Services/API/ProffApiService.cs:9</div>
+          <div class="risk-fix"><strong>Fix:</strong> Switch to <code>IHttpClientFactory</code> via <code>services.AddHttpClient&lt;T&gt;()</code>, set the header per-request on a <code>HttpRequestMessage</code>, not on the shared client.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="crit" data-area="backend">
+        <span class="risk-id">CRIT-2</span>
+        <div>
+          <div class="risk-title">Static HttpClient field re-instantiated per object <span class="badge badge-crit">Critical</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc"><code>ProffPremiumApiService._httpClient</code> is declared <code>static</code> but reassigned <code>new HttpClient()</code> in the constructor. Result: socket exhaustion over time, no DNS rotation. Worse: each <code>ProffPremiumLookup.Run()</code> currently constructs a new service per request.</div>
+          <div class="risk-file">LIVE-ProffCompanyLookup/Services/API/ProffPremiumApiService.cs:12,21</div>
+          <div class="risk-fix"><strong>Fix:</strong> Replace with <code>IHttpClientFactory</code> + typed client.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="crit" data-area="backend">
+        <span class="risk-id">CRIT-3</span>
+        <div>
+          <div class="risk-title">Static <code>HttpResponseData _response</code> in trigger classes <span class="badge badge-crit">Critical</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc">Both <code>ProffCompanyLookup</code> and <code>ProffPremiumLookup</code> hold <code>private static HttpResponseData? _response</code>. Two concurrent invocations on the same worker can clobber each other's response object.</div>
+          <div class="risk-file">LIVE-ProffCompanyLookup/ProffCompanyLookup.cs:28 · LIVE-ProffCompanyLookup/ProffPremiumLookup.cs:23</div>
+          <div class="risk-fix"><strong>Fix:</strong> Make local to the <code>Run</code> method. <code>HttpHelper.ConstructHttpResponse</code> currently takes it as a parameter but always overwrites — drop the parameter entirely.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="high" data-area="backend">
+        <span class="risk-id">HIGH-1</span>
+        <div>
+          <div class="risk-title">Stateful <code>_entity</code> cache on <code>AzureTableStorageService</code> <span class="badge badge-high">High</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc"><code>RetrieveEntityAsync</code> writes to a shared <code>_entity</code> instance field. Two concurrent calls can race; callers receive stale or wrong entities. On a miss, the method returns the cached <em>previous</em> entity instead of null.</div>
+          <div class="risk-file">LIVE-ProffCompanyLookup/Infrastructure/AzureTableStorageService.cs:11,20-26</div>
+          <div class="risk-fix"><strong>Fix:</strong> Return the entity directly; drop the instance field. Make the service stateless and register as singleton per-table.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="high" data-area="backend security">
+        <span class="risk-id">HIGH-2</span>
+        <div>
+          <div class="risk-title">No startup validation of secrets <span class="badge badge-high">High</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc"><code>PROFF_API_KEY</code>, <code>PROFF_PREMIUM_API_TOKEN</code>, <code>AZURE_PROFF_WEBSTORAGE_CONNECTIONSTRING</code> are read at construction with no null check. A misconfigured environment fails silently (malformed auth header) or only on first table operation.</div>
+          <div class="risk-file">ProffApiService.cs:16 · ProffPremiumApiService.cs:20 · AzureTableStorageService.cs:15</div>
+          <div class="risk-fix"><strong>Fix:</strong> Validate in <code>Program.cs</code> at startup; throw <code>InvalidOperationException</code>. Sample in the recommended Program.cs above.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="high" data-area="frontend security">
+        <span class="risk-id">HIGH-3</span>
+        <div>
+          <div class="risk-title">No response validation in PCF <span class="badge badge-high">High</span> <span class="badge badge-pcf">PCF</span></div>
+          <div class="risk-desc">The Proff API response is written directly to D365 form fields with no shape validation. If the upstream API or the function is compromised or breaks, malicious or malformed data lands in customer records.</div>
+          <div class="risk-file">VirtualControl/Components/Search.tsx (handleSearch)</div>
+          <div class="risk-fix"><strong>Fix:</strong> Add a Zod (or similar) runtime schema check on the response; reject on mismatch with a user-visible error.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="med" data-area="backend">
+        <span class="risk-id">MED-1</span>
+        <div>
+          <div class="risk-title">Stale year/month cached in <code>ProffActivityService</code> <span class="badge badge-med">Medium</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc">Cached from <code>DateTime.Today</code> at construction. If the worker instance survives across midnight (Premium/Always Ready), counts land on the wrong month row.</div>
+          <div class="risk-file">LIVE-ProffCompanyLookup/Services/ProffActivityService.cs:15-16,44-45</div>
+          <div class="risk-fix"><strong>Fix:</strong> Compute fresh inside <code>UpdateRequestCountAsync</code>; use <code>DateTime.UtcNow</code> consistently.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="med" data-area="backend">
+        <span class="risk-id">MED-2</span>
+        <div>
+          <div class="risk-title">No try/catch around JSON serialization in <code>HttpHelper</code> <span class="badge badge-med">Medium</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc">If a payload throws during serialisation, the function returns a generic 500 instead of a controlled error response.</div>
+          <div class="risk-file">LIVE-ProffCompanyLookup/Utils/HttpHelper.cs</div>
+          <div class="risk-fix"><strong>Fix:</strong> Wrap in try/catch; return 500 with an error envelope. Better: stop using <code>JsonConvert</code> and let MVC/STJ handle it via the ASP.NET Core integration.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="med" data-area="backend">
+        <span class="risk-id">MED-3</span>
+        <div>
+          <div class="risk-title">Per-request service instantiation in <code>ProffPremiumLookup</code> <span class="badge badge-med">Medium</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc"><code>InitializePremiumCacheService</code> and <code>InitializePremiumActivityService</code> <code>new</code> up an <code>AzureTableStorageService</code> on every request (parses connection string, instantiates <code>TableClient</code>). Wasteful, not buggy.</div>
+          <div class="risk-file">LIVE-ProffCompanyLookup/ProffPremiumLookup.cs:49,59</div>
+          <div class="risk-fix"><strong>Fix:</strong> Inject pre-built table-client singletons via DI as shown in the recommended Program.cs.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="med" data-area="frontend">
+        <span class="risk-id">MED-4</span>
+        <div>
+          <div class="risk-title">No user-visible error on failed fetch <span class="badge badge-med">Medium</span> <span class="badge badge-pcf">PCF</span></div>
+          <div class="risk-desc">Errors are <code>console.error</code>'d. The user sees an empty result set indistinguishable from "no matches". They retry and burn another API call.</div>
+          <div class="risk-file">VirtualControl/Components/Search.tsx (handleSearch catch block)</div>
+          <div class="risk-fix"><strong>Fix:</strong> Show a Fluent UI <code>MessageBar</code> at the top of the result area with a retry hint. Log to App Insights via a beacon if available.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="med" data-area="frontend">
+        <span class="risk-id">MED-5</span>
+        <div>
+          <div class="risk-title">No request timeout in PCF <span class="badge badge-med">Medium</span> <span class="badge badge-pcf">PCF</span></div>
+          <div class="risk-desc">The <code>fetch</code> has no timeout. If the function hangs (cold start &gt; user patience), the request never aborts unless the user retypes.</div>
+          <div class="risk-file">VirtualControl/Components/Search.tsx</div>
+          <div class="risk-fix"><strong>Fix:</strong> <code>setTimeout(() =&gt; controller.abort(), 15000)</code> in <code>handleSearch</code>, cleared on response.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="low" data-area="backend">
+        <span class="risk-id">LOW-1</span>
+        <div>
+          <div class="risk-title">Dead code: <code>ValidationUtils</code>, <code>ProffApiService.GetDetailedCompanyInfo</code> <span class="badge badge-low">Low</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc"><code>ValidationUtils.cs</code> is never called. <code>GetDetailedCompanyInfo()</code> (the eniropro variant) is never called and contains an <code>EntityPremiumLicenseIsActive()</code> that always returns false.</div>
+          <div class="risk-file">LIVE-ProffCompanyLookup/Utils/ValidationUtils.cs · Services/API/ProffApiService.cs:104-139</div>
+          <div class="risk-fix"><strong>Fix:</strong> Delete both during the .NET 10 port. Less code surface, less to review.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="low" data-area="backend">
+        <span class="risk-id">LOW-2</span>
+        <div>
+          <div class="risk-title">Unused <code>_response</code> parameter on <code>HttpHelper.ConstructHttpResponse</code> <span class="badge badge-low">Low</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc">Three overloads take <code>HttpResponseData? _response</code> and always overwrite via <code>req.CreateResponse(statusCode)</code>. Dead parameter; confusing API.</div>
+          <div class="risk-file">LIVE-ProffCompanyLookup/Utils/HttpHelper.cs:11,21,30</div>
+          <div class="risk-fix"><strong>Fix:</strong> Remove the parameter.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="low" data-area="backend">
+        <span class="risk-id">LOW-3</span>
+        <div>
+          <div class="risk-title">Logger injected but never used <span class="badge badge-low">Low</span> <span class="badge badge-fn">Backend</span></div>
+          <div class="risk-desc">Both triggers take <code>ILogger</code> in the constructor and never log. No cache-hit/-miss visibility, no per-request audit trail beyond App Insights request telemetry.</div>
+          <div class="risk-file">ProffCompanyLookup.cs · ProffPremiumLookup.cs</div>
+          <div class="risk-fix"><strong>Fix:</strong> Add structured logs at cache decision and outbound call boundaries.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="low" data-area="frontend">
+        <span class="risk-id">LOW-4</span>
+        <div>
+          <div class="risk-title">No accessibility attributes <span class="badge badge-low">Low</span> <span class="badge badge-pcf">PCF</span></div>
+          <div class="risk-desc">Result cards aren't keyboard navigable; no <code>aria-*</code> on SearchBox or Dropdown; flag SVGs have no alt text.</div>
+          <div class="risk-file">VirtualControl/Components/Search.tsx · Components/Flags/*.tsx</div>
+          <div class="risk-fix"><strong>Fix:</strong> Add <code>tabIndex</code>, <code>role="option"</code>, ARIA labels. Test with VoiceOver.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="low" data-area="frontend">
+        <span class="risk-id">LOW-5</span>
+        <div>
+          <div class="risk-title">No React error boundary <span class="badge badge-low">Low</span> <span class="badge badge-pcf">PCF</span></div>
+          <div class="risk-desc">An unhandled render exception takes down the entire PCF control with no fallback UI. Form section appears blank with no indication of what happened.</div>
+          <div class="risk-file">VirtualControl/index.ts</div>
+          <div class="risk-fix"><strong>Fix:</strong> Wrap <code>SearchComponent</code> in an <code>ErrorBoundary</code> that renders a small "Lookup unavailable — refresh" message and reports to console + App Insights.</div>
+        </div>
+      </li>
+      <li class="risk-item" data-sev="low" data-area="frontend">
+        <span class="risk-id">LOW-6</span>
+        <div>
+          <div class="risk-title">Typo: <code>_vistiorPostPlace</code>, unused imports <span class="badge badge-low">Low</span> <span class="badge badge-pcf">PCF</span></div>
+          <div class="risk-desc">Misspelled field name on <code>VirtualControl</code>. <code>ProffIcon</code> imported but not rendered. <code>Boolean</code> (constructor) used instead of <code>boolean</code> (type).</div>
+          <div class="risk-file">VirtualControl/index.ts:19 · Components/Search.tsx</div>
+          <div class="risk-fix"><strong>Fix:</strong> Sweep during the .NET 10 redeploy window; lint clean.</div>
+        </div>
+      </li>
+    </ul>
+    </section>
+
+    <!-- FOLDER AUDIT -->
+    <section id="folders">
+    <h2>Folder audit</h2>
+    <p>What's alive, what's dead, what to keep:</p>
+
+    <div class="card folder">
+      <span class="badge badge-good">Keep</span>
+      <div>
+        <div class="name">LIVE-ProffCompanyLookup/</div>
+        <div class="desc">Current .NET 8 isolated worker. The one deployed to <code>OSB-proff-company-lookup</code> and <code>osb-test</code>. <strong>Source of truth for the .NET 10 port.</strong></div>
+      </div>
+      <span class="badge badge-fn">Backend</span>
+    </div>
+
+    <div class="card folder">
+      <span class="badge badge-good">Keep</span>
+      <div>
+        <div class="name">VirtualControl/</div>
+        <div class="desc">PCF control. Active; Phase 1 fixes committed on <code>reduce-api-requests</code>. PCF bundle still embeds the leaked function key — coordinated rotation needed.</div>
+      </div>
+      <span class="badge badge-pcf">PCF</span>
+    </div>
+
+    <div class="card folder">
+      <span class="badge badge-good">Keep</span>
+      <div>
+        <div class="name">htmlResource/</div>
+        <div class="desc">5 web resources embedded directly in D365 forms (<code>ProffRating.html</code>, <code>keynumbers_account.html</code>, <code>keynumbers_lead.html</code>, example script, gauge library). Last meaningful change 2024-06-25 fixed the Azure function URL. Clarify whether the commented-out <code>GaugeLibrary</code> reference is deprecated or planned.</div>
+      </div>
+      <span class="badge badge-azure">D365 web resource</span>
+    </div>
+
+    <div class="card folder">
+      <span class="badge badge-low">Document & keep</span>
+      <div>
+        <div class="name">ProffCompanyLookupService_OLD_DotNet6Version/</div>
+        <div class="desc">Complete .NET 6 implementation, frozen 2024-06. Useful as reference if .NET 10 port hits a wall, and as test-data archive (<code>TestData/</code>). Add a README pointer to <code>LIVE-ProffCompanyLookup</code>.</div>
+      </div>
+      <span class="badge badge-low">Reference</span>
+    </div>
+
+    <div class="card folder">
+      <span class="badge badge-crit">Delete</span>
+      <div>
+        <div class="name">ProffCompanyLookupService/</div>
+        <div class="desc">Empty shell — only contains IDE artefacts (<code>.csproj.user</code>, publish profiles, <code>local.settings.json</code>). No <code>.csproj</code>, no source. Safe to remove.</div>
+      </div>
+      <span class="badge badge-low">Dead</span>
+    </div>
+    </section>
+
+    <!-- ACTION PLAN -->
+    <section id="plan">
+    <h2>Action plan — new function on .NET 10 + Consumption</h2>
+    <p>Bundled with the .NET 10 upgrade because you're standing up new infrastructure anyway. Sequenced for minimum LIVE risk.</p>
+
+    <div class="step"><div class="n">1</div><div class="body"><strong>Finish Phase 1 verification on existing <code>osb-test</code> first.</strong> Don't conflate "stop the bleed" with "framework upgrade". Run the 6 verification steps from <code>CHANGES.md</code> against the current .NET 8 build of the <code>reduce-api-requests</code> branch.</div></div>
+
+    <div class="step"><div class="n">2</div><div class="body"><strong>Provision the new function app & consumption plan in <code>dev-crm-rg</code>.</strong> Suggested name: <code>osb-proff-v2</code>. Norway East. Consumption plan (not Flex — cost analysis showed ~30× premium for this I/O-bound workload). Windows or Linux + Flex; <em>avoid Linux Consumption — doesn't support .NET 10</em>. Configure App Insights with connection string only (not instrumentation key).</div></div>
+
+    <div class="step"><div class="n">3</div><div class="body"><strong>Branch <code>upgrade/net10</code> from <code>reduce-api-requests</code> after Phase 1 verification passes.</strong> Keep the bump in isolation so any regression is easy to bisect.</div></div>
+
+    <div class="step"><div class="n">4</div><div class="body"><strong>Bump packages and TFM</strong> per the matrix above. Adopt the recommended <code>Program.cs</code> — it folds in fixes for CRIT-1/2/3, HIGH-1/2, MED-3 at zero extra cost. Snapshot-test the JSON response shape for both endpoints before and after to catch any STJ-vs-Newtonsoft drift.</div></div>
+
+    <div class="step"><div class="n">5</div><div class="body"><strong>Deploy to <code>osb-proff-v2</code></strong> from the new branch. Set <code>netFrameworkVersion=v10.0</code> (Windows) or <code>linuxFxVersion=DOTNET-ISOLATED|10.0</code> (Linux). Mirror the env settings from <code>OSB-proff-company-lookup</code>.</div></div>
+
+    <div class="step"><div class="n">6</div><div class="body"><strong>Point a dev PCF build at the new endpoint</strong> via a temporary <code>config.dev.ts</code>. Re-run Phase 1 verification + the JSON-shape snapshot tests. Watch App Insights for unexpected exception classes.</div></div>
+
+    <div class="step"><div class="n">7</div><div class="body"><strong>Rotate the function key</strong> (the one committed in git history) on both old and new function apps. Update the PCF config in the same release. Treat this as a separate change — it's load-bearing for the existing LIVE too.</div></div>
+
+    <div class="step"><div class="n">8</div><div class="body"><strong>Soak for 3–5 days</strong> with one or two pilot tenants pointed at <code>osb-proff-v2</code>. Watch App Insights for: cold-start frequency, exception rate, p95 latency, Proff outbound count vs the LIVE app.</div></div>
+
+    <div class="step"><div class="n">9</div><div class="body"><strong>Cutover</strong> — flip the PCF config to <code>osb-proff-v2</code> for all tenants, retire <code>OSB-proff-company-lookup</code> after a one-week hold. Target completion by <strong>September 2026</strong>, leaving a 2-month safety buffer before the .NET 8 cliff.</div></div>
+
+    <div class="step"><div class="n">10</div><div class="body"><strong>Delete <code>ProffCompanyLookupService/</code></strong> (the dead artefact folder) and add a README pointer to the <code>_OLD_DotNet6Version/</code> archive while you're in there.</div></div>
+    </section>
+
+    <hr />
+    <p class="footnote">Generated 2026-05-21 from a full read of the source tree. Diagrams: Mermaid 11. Graph: D3 v7. Single-file HTML, no build step — open directly in a browser. Path: <code>OSEBERG_Proff/docs/codebase-overview.html</code>.</p>
+  </main>
+</div>
+
+<script>
+  // Mermaid theme configs — keyed by theme name
+  const MERMAID_THEMES = {
+    dark: {
+      background: '#161b22', primaryColor: '#1c2230', primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#3a4456', lineColor: '#7dd3fc', secondaryColor: '#1c2230',
+      tertiaryColor: '#0e1116', mainBkg: '#1c2230', textColor: '#e6edf3',
+      noteBkgColor: '#1c2230', noteTextColor: '#9ba6b7', noteBorderColor: '#3a4456',
+      actorBkg: '#1c2230', actorBorder: '#3a4456', actorTextColor: '#e6edf3',
+      actorLineColor: '#3a4456', signalColor: '#9ba6b7', signalTextColor: '#e6edf3',
+      labelBoxBkgColor: '#1c2230', labelBoxBorderColor: '#3a4456', labelTextColor: '#e6edf3'
+    },
+    light: {
+      background: '#ffffff', primaryColor: '#f1f5f9', primaryTextColor: '#0f172a',
+      primaryBorderColor: '#cbd5e1', lineColor: '#0284c7', secondaryColor: '#f1f5f9',
+      tertiaryColor: '#f8fafc', mainBkg: '#ffffff', textColor: '#0f172a',
+      noteBkgColor: '#f1f5f9', noteTextColor: '#475569', noteBorderColor: '#cbd5e1',
+      actorBkg: '#ffffff', actorBorder: '#cbd5e1', actorTextColor: '#0f172a',
+      actorLineColor: '#cbd5e1', signalColor: '#475569', signalTextColor: '#0f172a',
+      labelBoxBkgColor: '#f1f5f9', labelBoxBorderColor: '#cbd5e1', labelTextColor: '#0f172a'
+    }
+  };
+
+  function initMermaid(theme) {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      fontFamily: 'Inter, sans-serif',
+      themeVariables: MERMAID_THEMES[theme]
+    });
+  }
+  function renderMermaid() {
+    document.querySelectorAll('.mermaid').forEach(el => {
+      if (!el.dataset.original) el.dataset.original = el.textContent.trim();
+      else { el.innerHTML = el.dataset.original; }
+      el.removeAttribute('data-processed');
+    });
+    mermaid.run({ querySelector: '.mermaid' });
+  }
+
+  // Theme controller — sets data-theme on <html>, persists choice, re-renders mermaid + graph
+  (function themeController() {
+    const root = document.documentElement;
+    const toggle = document.getElementById('theme-toggle');
+    const label = toggle?.querySelector('.theme-label');
+    const STORAGE_KEY = 'oseberg-docs-theme';
+
+    function getInitial() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored === 'light' || stored === 'dark') return stored;
+      } catch (e) {}
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+
+    function apply(theme, { rerender = true } = {}) {
+      if (theme === 'light') root.setAttribute('data-theme', 'light');
+      else root.removeAttribute('data-theme');
+      if (label) label.textContent = theme === 'light' ? 'Dark mode' : 'Light mode';
+      if (toggle) toggle.setAttribute('aria-label', `Switch to ${theme === 'light' ? 'dark' : 'light'} theme`);
+      initMermaid(theme);
+      if (rerender) {
+        renderMermaid();
+        if (typeof updateGraphColors === 'function') updateGraphColors();
+      }
+    }
+
+    window.__theme = getInitial();
+    // First apply runs after Mermaid is loaded (script in head is sync)
+    apply(window.__theme, { rerender: false });
+    // Initial mermaid render once DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', renderMermaid, { once: true });
+    } else {
+      renderMermaid();
+    }
+
+    toggle?.addEventListener('click', () => {
+      window.__theme = window.__theme === 'light' ? 'dark' : 'light';
+      try { localStorage.setItem(STORAGE_KEY, window.__theme); } catch (e) {}
+      apply(window.__theme);
+    });
+
+    // React to OS-level theme change ONLY if user hasn't expressed a preference
+    try {
+      const mq = window.matchMedia('(prefers-color-scheme: light)');
+      mq.addEventListener?.('change', (e) => {
+        if (localStorage.getItem(STORAGE_KEY)) return;
+        window.__theme = e.matches ? 'light' : 'dark';
+        apply(window.__theme);
+      });
+    } catch (e) {}
+  })();
+
+  // Risk filter
+  document.querySelectorAll('#risk-filters button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#risk-filters button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      document.querySelectorAll('#risk-list .risk-item').forEach(item => {
+        if (f === 'all') { item.style.display = ''; return; }
+        const sev = item.dataset.sev;
+        const area = item.dataset.area || '';
+        if (sev === f || area.includes(f)) item.style.display = '';
+        else item.style.display = 'none';
+      });
+    });
+  });
+
+  // D3 force-directed codebase graph
+  const NODES = [
+    // PCF (purple)
+    { id: 'pcf:index', label: 'index.ts', group: 'pcf', size: 16 },
+    { id: 'pcf:search', label: 'Search.tsx', group: 'pcf', size: 18 },
+    { id: 'pcf:flag', label: 'FlagRenderer', group: 'pcf', size: 9 },
+    { id: 'pcf:companyData', label: 'CompanyData', group: 'model', size: 10 },
+    { id: 'pcf:config', label: 'config.ts', group: 'pcf', size: 9 },
+
+    // Function entry (fn)
+    { id: 'fn:lookup', label: 'ProffCompanyLookup', group: 'fn', size: 20 },
+    { id: 'fn:premium', label: 'ProffPremiumLookup', group: 'fn', size: 20 },
+    { id: 'fn:program', label: 'Program.cs', group: 'fn', size: 10 },
+
+    // Services (accent)
+    { id: 'svc:proffApi', label: 'ProffApiService', group: 'svc', size: 16 },
+    { id: 'svc:premApi', label: 'ProffPremiumApiService', group: 'svc', size: 14 },
+    { id: 'svc:companyData', label: 'CompanyDataService', group: 'svc', size: 11 },
+    { id: 'svc:activity', label: 'ProffActivityService', group: 'svc', size: 12 },
+    { id: 'svc:premAct', label: 'ProffPremiumActivityService', group: 'svc', size: 11 },
+    { id: 'svc:premCache', label: 'ProffPremiumCacheService', group: 'svc', size: 12 },
+    { id: 'svc:tableStore', label: 'AzureTableStorageService', group: 'svc', size: 16 },
+    { id: 'svc:httpHelper', label: 'HttpHelper', group: 'svc', size: 10 },
+    { id: 'svc:memCache', label: 'IMemoryCache', group: 'svc', size: 11 },
+
+    // Models (gray)
+    { id: 'mdl:company', label: 'CompanyData', group: 'model', size: 9 },
+    { id: 'mdl:credit', label: 'CreditRating', group: 'model', size: 9 },
+    { id: 'mdl:input', label: 'InputParams', group: 'model', size: 9 },
+
+    // External Proff (pink)
+    { id: 'ext:proff', label: 'api.proff.no', group: 'proff', size: 16 },
+    { id: 'ext:ppc', label: 'ppc.proff.no', group: 'proff', size: 14 },
+
+    // Azure Tables (azure blue)
+    { id: 'az:config', label: 'ProffConfiguration', group: 'azure', size: 11 },
+    { id: 'az:reqAct', label: 'ProffRequestActivity', group: 'azure', size: 11 },
+    { id: 'az:premAct', label: 'ProffPremiumRequestActivity', group: 'azure', size: 11 },
+    { id: 'az:premCache', label: 'ProffPremiumCache', group: 'azure', size: 11 },
+
+    // D365 (yellow)
+    { id: 'd365:form', label: 'D365 Account form', group: 'd365', size: 17 },
+  ];
+
+  const LINKS = [
+    // PCF internal
+    { source: 'pcf:index', target: 'pcf:search', type: 'contains' },
+    { source: 'pcf:search', target: 'pcf:flag', type: 'contains' },
+    { source: 'pcf:search', target: 'pcf:companyData', type: 'contains' },
+    { source: 'pcf:search', target: 'pcf:config', type: 'contains' },
+
+    // PCF <-> function
+    { source: 'pcf:search', target: 'fn:lookup', type: 'calls' },
+    { source: 'pcf:search', target: 'fn:premium', type: 'calls' },
+
+    // PCF -> D365
+    { source: 'pcf:index', target: 'd365:form', type: 'calls' },
+
+    // Program.cs registers
+    { source: 'fn:program', target: 'svc:memCache', type: 'contains' },
+
+    // ProffCompanyLookup deps
+    { source: 'fn:lookup', target: 'mdl:input', type: 'calls' },
+    { source: 'fn:lookup', target: 'svc:memCache', type: 'calls' },
+    { source: 'fn:lookup', target: 'svc:tableStore', type: 'calls' },
+    { source: 'fn:lookup', target: 'svc:proffApi', type: 'calls' },
+    { source: 'fn:lookup', target: 'svc:companyData', type: 'calls' },
+    { source: 'fn:lookup', target: 'svc:activity', type: 'calls' },
+    { source: 'fn:lookup', target: 'svc:httpHelper', type: 'calls' },
+
+    // ProffPremiumLookup deps
+    { source: 'fn:premium', target: 'mdl:input', type: 'calls' },
+    { source: 'fn:premium', target: 'svc:tableStore', type: 'calls' },
+    { source: 'fn:premium', target: 'svc:premApi', type: 'calls' },
+    { source: 'fn:premium', target: 'svc:premCache', type: 'calls' },
+    { source: 'fn:premium', target: 'svc:premAct', type: 'calls' },
+    { source: 'fn:premium', target: 'svc:httpHelper', type: 'calls' },
+
+    // Service-to-service
+    { source: 'svc:proffApi', target: 'ext:proff', type: 'calls' },
+    { source: 'svc:proffApi', target: 'svc:tableStore', type: 'calls' },
+    { source: 'svc:premApi', target: 'ext:ppc', type: 'calls' },
+    { source: 'svc:premCache', target: 'svc:tableStore', type: 'calls' },
+    { source: 'svc:activity', target: 'svc:tableStore', type: 'calls' },
+    { source: 'svc:premAct', target: 'svc:tableStore', type: 'calls' },
+    { source: 'svc:companyData', target: 'mdl:company', type: 'calls' },
+    { source: 'svc:premApi', target: 'mdl:credit', type: 'calls' },
+    { source: 'svc:premCache', target: 'mdl:credit', type: 'calls' },
+
+    // AzureTableStorageService -> Azure Tables
+    { source: 'svc:tableStore', target: 'az:config', type: 'calls' },
+    { source: 'svc:tableStore', target: 'az:reqAct', type: 'calls' },
+    { source: 'svc:tableStore', target: 'az:premAct', type: 'calls' },
+    { source: 'svc:tableStore', target: 'az:premCache', type: 'calls' },
+
+    // PCF model relations
+    { source: 'pcf:search', target: 'pcf:companyData', type: 'calls' },
+  ];
+
+  function getCss(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '#999'; }
+  function readColors() {
+    return {
+      pcf: getCss('--pcf'),
+      fn: getCss('--fn'),
+      svc: getCss('--accent'),
+      proff: getCss('--proff'),
+      azure: getCss('--azure'),
+      d365: getCss('--d365'),
+      model: '#9ca3af'
+    };
+  }
+  let COLORS = readColors();
+  // Exposed for the theme controller to re-color nodes on theme flip
+  function updateGraphColors() {
+    COLORS = readColors();
+    d3.selectAll('#graph-svg .node circle').attr('fill', d => COLORS[d.group]);
+    d3.selectAll('#graph-container .legend .dot').each(function() {
+      // Legend dots use inline style="background:var(--X)" — CSS vars update automatically
+    });
+  }
+
+  const container = document.getElementById('graph-container');
+  const svg = d3.select('#graph-svg');
+  const width = container.clientWidth - 40;
+  const height = 640;
+  svg.attr('viewBox', `0 0 ${width} ${height}`);
+
+  const g = svg.append('g');
+
+  // Zoom
+  svg.call(d3.zoom().scaleExtent([0.4, 3]).on('zoom', (e) => g.attr('transform', e.transform)));
+
+  const sim = d3.forceSimulation(NODES)
+    .force('link', d3.forceLink(LINKS).id(d => d.id).distance(l => l.type === 'contains' ? 60 : 110).strength(0.5))
+    .force('charge', d3.forceManyBody().strength(-280))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('collision', d3.forceCollide().radius(d => d.size + 14));
+
+  const link = g.append('g').selectAll('line')
+    .data(LINKS).enter().append('line')
+    .attr('class', d => 'link ' + d.type)
+    .attr('stroke-width', d => d.type === 'calls' ? 1.4 : 1);
+
+  const node = g.append('g').selectAll('g')
+    .data(NODES).enter().append('g')
+    .attr('class', 'node')
+    .call(d3.drag()
+      .on('start', (e, d) => { if (!e.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+      .on('end', (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
+
+  node.append('circle')
+    .attr('r', d => d.size)
+    .attr('fill', d => COLORS[d.group])
+    .attr('fill-opacity', 0.85);
+
+  node.append('text')
+    .attr('class', 'node-label')
+    .attr('text-anchor', 'middle')
+    .attr('dy', d => d.size + 14)
+    .text(d => d.label);
+
+  node.on('click', (e, d) => {
+    const connected = new Set([d.id]);
+    LINKS.forEach(l => {
+      if (l.source.id === d.id) connected.add(l.target.id);
+      if (l.target.id === d.id) connected.add(l.source.id);
+    });
+    node.classed('dim', n => !connected.has(n.id));
+    link.classed('dim', l => l.source.id !== d.id && l.target.id !== d.id);
+    e.stopPropagation();
+  });
+  svg.on('click', () => { node.classed('dim', false); link.classed('dim', false); });
+
+  sim.on('tick', () => {
+    link
+      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    node.attr('transform', d => `translate(${d.x}, ${d.y})`);
+  });
+</script>
+</body>
+</html>
